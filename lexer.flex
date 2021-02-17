@@ -1,71 +1,175 @@
-%option noyywrap
+D			[0-9]
+L			[a-zA-Z_]
+H			[a-fA-F0-9]
+E			[Ee][+-]?{D}+
+FS			(f|F|l|L)
+IS			(u|U|l|L)*
 
 %{
-/* Now in a section of C that will be embedded
-   into the auto-generated code. Flex will not
-   try to interpret code surrounded by %{ ... %} */
+#include <stdio.h>
+#include "y.tab.h"
 
-/* Bring in our declarations for token types and
-   the yylval variable. */
-#include "histogram.hpp"
-float frac_to_dec(std::string a)
-{
-  std::string num, denom;
-  unsigned int index = a.find("/");
-  for(unsigned int i=0; i<a.length(); i++)
-  {
-    if(i < index)
-    {
-      num += a[i];
-    }
-    else if(i != index)
-    {
-      denom += a[i];
-    }
-  }
-  float dec = atof(num.c_str()) / atof(denom.c_str());
-  return dec;
-}
-
-std::string substring(std::string a)
-{
-  int len = a.length();
-  std::string sub = a.substr(1,len - 2);
-  return sub;
-}
-
-// This is to work around an irritating bug in Flex
-// https://stackoverflow.com/questions/46213840/get-rid-of-warning-implicit-declaration-of-function-fileno-in-flex
-extern "C" int fileno(FILE *stream);
-
-/* End the embedded code section. */
+void count();
 %}
 
-digit [0-9]
-letter [a-zA-Z]
-decimal -?{digit}+\.?{digit}*
-fraction -?[0-9]+\/[0-9]+
-word1 {letter}+
-word2 \[{word1}?{decimal}?{fraction}?\]
-word3 \[[^\]]*\]
+%%
+"/*"			{ comment(); }
+
+"auto"			{ count(); return(AUTO); }
+"break"			{ count(); return(BREAK); }
+"case"			{ count(); return(CASE); }
+"char"			{ count(); return(CHAR); }
+"const"			{ count(); return(CONST); }
+"continue"		{ count(); return(CONTINUE); }
+"default"		{ count(); return(DEFAULT); }
+"do"			{ count(); return(DO); }
+"double"		{ count(); return(DOUBLE); }
+"else"			{ count(); return(ELSE); }
+"enum"			{ count(); return(ENUM); }
+"extern"		{ count(); return(EXTERN); }
+"float"			{ count(); return(FLOAT); }
+"for"			{ count(); return(FOR); }
+"goto"			{ count(); return(GOTO); }
+"if"			{ count(); return(IF); }
+"int"			{ count(); return(INT); }
+"long"			{ count(); return(LONG); }
+"register"		{ count(); return(REGISTER); }
+"return"		{ count(); return(RETURN); }
+"short"			{ count(); return(SHORT); }
+"signed"		{ count(); return(SIGNED); }
+"sizeof"		{ count(); return(SIZEOF); }
+"static"		{ count(); return(STATIC); }
+"struct"		{ count(); return(STRUCT); }
+"switch"		{ count(); return(SWITCH); }
+"typedef"		{ count(); return(TYPEDEF); }
+"union"			{ count(); return(UNION); }
+"unsigned"		{ count(); return(UNSIGNED); }
+"void"			{ count(); return(VOID); }
+"volatile"		{ count(); return(VOLATILE); }
+"while"			{ count(); return(WHILE); }
+
+{L}({L}|{D})*		{ count(); return(check_type()); }
+
+0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
+0{D}+{IS}?		{ count(); return(CONSTANT); }
+{D}+{IS}?		{ count(); return(CONSTANT); }
+L?'(\\.|[^\\'])+'	{ count(); return(CONSTANT); }
+
+{D}+{E}{FS}?		{ count(); return(CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ count(); return(CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ count(); return(CONSTANT); }
+
+L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
+
+"..."			{ count(); return(ELLIPSIS); }
+">>="			{ count(); return(RIGHT_ASSIGN); }
+"<<="			{ count(); return(LEFT_ASSIGN); }
+"+="			{ count(); return(ADD_ASSIGN); }
+"-="			{ count(); return(SUB_ASSIGN); }
+"*="			{ count(); return(MUL_ASSIGN); }
+"/="			{ count(); return(DIV_ASSIGN); }
+"%="			{ count(); return(MOD_ASSIGN); }
+"&="			{ count(); return(AND_ASSIGN); }
+"^="			{ count(); return(XOR_ASSIGN); }
+"|="			{ count(); return(OR_ASSIGN); }
+">>"			{ count(); return(RIGHT_OP); }
+"<<"			{ count(); return(LEFT_OP); }
+"++"			{ count(); return(INC_OP); }
+"--"			{ count(); return(DEC_OP); }
+"->"			{ count(); return(PTR_OP); }
+"&&"			{ count(); return(AND_OP); }
+"||"			{ count(); return(OR_OP); }
+"<="			{ count(); return(LE_OP); }
+">="			{ count(); return(GE_OP); }
+"=="			{ count(); return(EQ_OP); }
+"!="			{ count(); return(NE_OP); }
+";"			{ count(); return(';'); }
+("{"|"<%")		{ count(); return('{'); }
+("}"|"%>")		{ count(); return('}'); }
+","			{ count(); return(','); }
+":"			{ count(); return(':'); }
+"="			{ count(); return('='); }
+"("			{ count(); return('('); }
+")"			{ count(); return(')'); }
+("["|"<:")		{ count(); return('['); }
+("]"|":>")		{ count(); return(']'); }
+"."			{ count(); return('.'); }
+"&"			{ count(); return('&'); }
+"!"			{ count(); return('!'); }
+"~"			{ count(); return('~'); }
+"-"			{ count(); return('-'); }
+"+"			{ count(); return('+'); }
+"*"			{ count(); return('*'); }
+"/"			{ count(); return('/'); }
+"%"			{ count(); return('%'); }
+"<"			{ count(); return('<'); }
+">"			{ count(); return('>'); }
+"^"			{ count(); return('^'); }
+"|"			{ count(); return('|'); }
+"?"			{ count(); return('?'); }
+
+[ \t\v\n\f]		{ count(); }
+.			{ /* ignore bad characters */ }
+
 %%
 
-{decimal}        { fprintf(stderr, "Number : %s\n", yytext); /* TODO: get value out of yytext and into yylval.numberValue */ yylval.numberValue = atof(yytext); return Number;}
-
-{word1}          { fprintf(stderr, "Word : %s\n", yytext); /* TODO: get value out of yytext and into yylval.wordValue */ yylval.wordValue = new std::string(yytext); return Word;}
-
-\n              { fprintf(stderr, "Newline\n"); }
-
-{fraction}        { fprintf(stderr, "Number : %s\n", yytext); /* TODO: get value out of yytext and into yylval.numberValue */ yylval.numberValue = frac_to_dec(yytext); return Number;}
-
-{word3}           { fprintf(stderr, "Word : %s\n", yytext); /* TODO: get value out of yytext and into yylval.wordValue */ yylval.wordValue = new std::string(substring(yytext)); return Word;}
-
-.            { fprintf(stderr, "Random Character\n"); }
-%%
-
-/* Error handler. This will get called if none of the rules match. */
-void yyerror (char const *s)
+yywrap()
 {
-  fprintf (stderr, "Flex Error: %s\n", s); /* s is the text that wasn't matched */
-  exit(1);
+	return(1);
+}
+
+
+comment()
+{
+	char c, c1;
+
+loop:
+	while ((c = input()) != '*' && c != 0)
+		putchar(c);
+
+	if ((c1 = input()) != '/' && c != 0)
+	{
+		unput(c1);
+		goto loop;
+	}
+
+	if (c != 0)
+		putchar(c1);
+}
+
+
+int column = 0;
+
+void count()
+{
+	int i;
+
+	for (i = 0; yytext[i] != '\0'; i++)
+		if (yytext[i] == '\n')
+			column = 0;
+		else if (yytext[i] == '\t')
+			column += 8 - (column % 8);
+		else
+			column++;
+
+	ECHO;
+}
+
+
+int check_type()
+{
+/*
+* pseudo code --- this is what it should check
+*
+*	if (yytext == type_name)
+*		return(TYPE_NAME);
+*
+*	return(IDENTIFIER);
+*/
+
+/*
+*	it actually will only return IDENTIFIER
+*/
+
+	return(IDENTIFIER);
 }
