@@ -6,11 +6,14 @@ CPPFLAGS += -std=c++0x
 # Avoid warnings about yyunput not used
 CPPFLAGS += -Wno-unused-function
 
-all : 
+src/parser.tab.cpp src/parser.tab.hpp : src/parser.y
+    	bison -v -d src/parser.y -o src/parser.tab.cpp
 
-lexer.yy.cpp : lexer.flex
-	flex -o lexer.yy.cpp lexer.yy.o
+src/lexer.yy.cpp : src/lexer.flex
+		flex -o src/lexer.yy.cpp src/lexer.flex
 
 clean : 
-	-rm -f 
-	-rm -f *.yy.cpp
+		rm src/*.o
+		rm src/*.yy.cpp
+		rm src/*tab.cpp
+

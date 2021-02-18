@@ -7,7 +7,10 @@ IS			(u|U|l|L)*
 
 %{
 #include <stdio.h>
-#include "y.tab.h"
+#include <memory>
+#include <utility>
+#define YYSTYPE std::shared_ptr<Expression> Expression
+#include "parser.tab.h"
 
 void count();
 %}
