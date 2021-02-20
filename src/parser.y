@@ -1,6 +1,24 @@
-%{
-	#define YYSTYPE std::shared_ptr<Expression>
-%}
+%code requires{
+  #include "ast.hpp"
+
+  #include <cassert>
+
+  extern const Expression *translation_unit; // A way of getting the AST out
+
+  //! This is to fix problems when generating C++
+  // We are declaring the functions provided by Flex, so
+  // that Bison generated code can call them.
+  int yylex(void);
+  void yyerror(const char *);
+}
+
+%union{
+    ExpressionPtr expr;
+    int _int;
+    float _double;
+    std::string _string;
+    void _void;
+}
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
@@ -14,8 +32,8 @@
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
 %type <expr> primary_expression relational_expression equality_expression and_expression shift_expression additive_expression unary_expression multiplicative_expression cast_expression
-%type <string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP STRING_LITERAL SIZEOF
-%type <number> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT unary_operator
+%type <_string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP STRING_LITERAL SIZEOF TYPE_NAME
+%type <_int> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT 
 
 %start translation_unit
 %%
@@ -44,16 +62,16 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression
-	| INC_OP unary_expression
-	| DEC_OP unary_expression
-	| unary_operator cast_expression			{$$ = Unary($1, $2);}
-	| SIZEOF unary_expression
-	| SIZEOF '(' type_name ')'
+	: postfix_expression						{$$ = Unary($1, NULL);}
+	| INC_OP unary_expression					{$$ = Unary($1, $2);}
+	| DEC_OP unary_expression					{$$ = Unary($1, $2);}
+	| '&' cast_expression			{$$ = Unary($1, $2);}
+	| SIZEOF unary_expression					{$$ = Unary($1, $2);}
+	| SIZEOF '(' type_name ')'					{$$ = Unary($1, NULL, $3);}
 	;
 
 unary_operator
-	: '&'
+	: '&'			{$$ = Unary('&');}
 	| '*'
 	| '+'
 	| '-'
@@ -69,20 +87,20 @@ cast_expression
 multiplicative_expression
 	: cast_expression
 	| multiplicative_expression '*' cast_expression			{$$ = BinOp($1, '*', $3);}
-	| multiplicative_expression '/' cast_expression			{$$ = BinOp($1, '*', $3);}
-	| multiplicative_expression '%' cast_expression			{$$ = BinOp($1, '*', $3);}
+	| multiplicative_expression '/' cast_expression			{$$ = BinOp($1, '/', $3);}
+	| multiplicative_expression '%' cast_expression			{$$ = BinOp($1, '%', $3);}
 	;
 
 additive_expression
-	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression			{$$ = BinOp($1, '+', $3);}
-	| additive_expression '-' multiplicative_expression			{$$ = BinOp($1, '-', $3);}
+	: multiplicative_expression									
+	| additive_expression '+' multiplicative_expression	{$$ = BinOp($1, '+', $3);}
+	| additive_expression '-' multiplicative_expression	{$$ = BinOp($1, '-', $3);}
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression
-	| shift_expression RIGHT_OP additive_expression
+	| shift_expression LEFT_OP additive_expression	{$$ = BinOp($1, $2, $3);}
+	| shift_expression RIGHT_OP additive_expression	{$$ = BinOp($1, $2, $3);}
 	;
 
 relational_expression
@@ -106,27 +124,27 @@ and_expression
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression
+	| exclusive_or_expression '^' and_expression	{$$ = BinOp($1, '^', $3);}
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	| inclusive_or_expression '|' exclusive_or_expression	{$$ = BinOp($1, '^', $3);}
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression
+	| logical_and_expression AND_OP inclusive_or_expression	{$$ = BinOp($1, $2, $3);}
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression
+	| logical_or_expression OR_OP logical_and_expression	{$$ = BinOp($1, $2, $3);}
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
+	| logical_or_expression '?' expression ':' conditional_expression   {$$ = If($1, $3, $5);}
 	;
 
 assignment_expression
@@ -205,13 +223,13 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union IDENTIFIER
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {$$ = Struct($1, $2, $3);}
+	| struct_or_union '{' struct_declaration_list '}'   {$$ = Struct($1, NULL, $2);}
+	| struct_or_union IDENTIFIER    {$$ = Struct($1, $2); }
 	;
 
 struct_or_union
-	: STRUCT
+	: STRUCT   
 	| UNION
 	;
 
@@ -384,24 +402,24 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' statement
-	| IF '(' expression ')' statement ELSE statement
-	| SWITCH '(' expression ')' statement
+	: IF '(' expression ')' statement   {$$ = If($3, $5, NULL);}
+	| IF '(' expression ')' statement ELSE statement     {$$ = If($3, $5, $7);}
+	| SWITCH '(' expression ')' statement   {$$ = Switch($3, $5);}
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement
-	| DO statement WHILE '(' expression ')' ';'
-	| FOR '(' expression_statement expression_statement ')' statement
-	| FOR '(' expression_statement expression_statement expression ')' statement
+	: WHILE '(' expression ')' statement    {$$ = While(NULL, $3, $5,);}
+	| DO statement WHILE '(' expression ')' ';' {$$ = While($2, NULL, $5);}
+	| FOR '(' expression_statement expression_statement ')' statement   {$$ = For($3, $4, NULL, $6);}
+	| FOR '(' expression_statement expression_statement expression ')' statement    {$$ = For($3, $4, $5, $7);}
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'
-	| CONTINUE ';'
-	| BREAK ';'
-	| RETURN ';'
-	| RETURN expression ';'
+	: GOTO IDENTIFIER ';'   {$$ = Jump($1, $2);}
+	| CONTINUE ';'  {$$ = Jump($1, NULL);}
+	| BREAK ';' {$$ = Jump($1, NULL);}
+	| RETURN ';'    {$$ = Jump($1, NULL);}
+	| RETURN expression ';' {$$ = Jump($1, $2);}
 	;
 
 translation_unit

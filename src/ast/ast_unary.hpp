@@ -6,12 +6,58 @@
 class Unary : public Expression 
 {
     private:
-        std::shared_ptr<Expression> right;
-        std::shared_ptr<std::string> op;
+        ExpressionPtr thing;
+    protected:
+        Unary(ExpressionPtr _thing) :
+            thing(_thing)
+        { }
+};
+
+class IncrementUnary : public Unary
+{
     public:
-        Unary(std::shared_ptr<std::string> _op, std::shared_ptr<Expression> _right) :
-            right(_right);
-            op(_op);
+        IncrementUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
+class DecrementUnary : public Unary
+{
+    public:
+        DecrementUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
+class NegUnary : public Unary
+{
+    public:
+        NegUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
+class NotUnary : public Unary
+{
+    public:
+        NotUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
+class AddrUnary : public Unary
+{
+    public:
+        AddrUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
+class SizeofUnary : public Unary
+{
+    public:
+        SizeofUnary(ExpressionPtr _thing) :
+            Unary(_thing)
         { }
 };
 

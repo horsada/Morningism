@@ -7,9 +7,9 @@
 #include <memory>
 #include <utility>
 
+class Expression;
+typedef std::shared_ptr<Expression> ExpressionPtr;
+
 class Expression
-{
-    public:
-        virtual void print(std::ostream &dst) =0;
-};
+{};
 #endif
