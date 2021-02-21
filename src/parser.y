@@ -3,7 +3,7 @@
 
   #include <cassert>
 
-  extern const Expression *translation_unit; // A way of getting the AST out
+  ExpressionPtr translation_unit; // A way of getting the AST out
 
   //! This is to fix problems when generating C++
   // We are declaring the functions provided by Flex, so
@@ -62,21 +62,17 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression						{$$ = Unary($1, NULL);}
-	| INC_OP unary_expression					{$$ = Unary($1, $2);}
-	| DEC_OP unary_expression					{$$ = Unary($1, $2);}
-	| '&' cast_expression			{$$ = Unary($1, $2);}
-	| SIZEOF unary_expression					{$$ = Unary($1, $2);}
-	| SIZEOF '(' type_name ')'					{$$ = Unary($1, NULL, $3);}
-	;
-
-unary_operator
-	: '&'			{$$ = Unary('&');}
-	| '*'
-	| '+'
-	| '-'
-	| '~'
-	| '!'
+	: postfix_expression			{$$ = Unary($1, NULL);} // TODO: Fix
+	| INC_OP unary_expression		{$$ = IncrementUnary($2);}
+	| DEC_OP unary_expression		{$$ = DecrementUnary($2);}
+	| '&'	unary_expression		{$$ = ArrUnary('&');}
+	| '*'	unary_expression		{$$ = PointerUnary('&');}
+	| '+'	unary_expression		{$$ = PositiveUnary('&');}
+	| '-'	unary_expression		{$$ = NegativeUnary('&');}
+	| '~'	unary_expression		{$$ = ComplementUnary('&');}
+	| '!'	unary_expression		{$$ = NegationUnary('&');}
+	| SIZEOF unary_expression		{$$ = SizeOfUnary($2);}
+	| SIZEOF '(' type_name ')'		{$$ = SizeOfUnary($2);}
 	;
 
 cast_expression
@@ -86,65 +82,65 @@ cast_expression
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression			{$$ = BinOp($1, '*', $3);}
-	| multiplicative_expression '/' cast_expression			{$$ = BinOp($1, '/', $3);}
-	| multiplicative_expression '%' cast_expression			{$$ = BinOp($1, '%', $3);}
+	| multiplicative_expression '*' cast_expression			{$$ = MulOp($1, $3);}
+	| multiplicative_expression '/' cast_expression			{$$ = DivOp($1, $3);}
+	| multiplicative_expression '%' cast_expression			{$$ = ModuloOp($1, $3);}
 	;
 
 additive_expression
 	: multiplicative_expression									
-	| additive_expression '+' multiplicative_expression	{$$ = BinOp($1, '+', $3);}
-	| additive_expression '-' multiplicative_expression	{$$ = BinOp($1, '-', $3);}
+	| additive_expression '+' multiplicative_expression	{$$ = AddOp($1, $3);}
+	| additive_expression '-' multiplicative_expression	{$$ = SubOp($1, $3);}
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression	{$$ = BinOp($1, $2, $3);}
-	| shift_expression RIGHT_OP additive_expression	{$$ = BinOp($1, $2, $3);}
+	| shift_expression LEFT_OP additive_expression	{$$ = LeftShiftOp($1, $3);}
+	| shift_expression RIGHT_OP additive_expression	{$$ = RightShiftOp($1, $3);}
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression	{$$ = BinOp($1, '<', $3);}
-	| relational_expression '>' shift_expression	{$$ = BinOp($1, '>', $3);}
-	| relational_expression LE_OP shift_expression	{$$ = BinOp($1, $2, $3);}
-	| relational_expression GE_OP shift_expression	{$$ = BinOp($1, $2, $3);}
+	| relational_expression '<' shift_expression	{$$ = LLessThanOp($1, $3);}
+	| relational_expression '>' shift_expression	{$$ = GreaterThanOp($1, $3);}
+	| relational_expression LE_OP shift_expression	{$$ = LessThanOrEqualToOp($1, $3);}
+	| relational_expression GE_OP shift_expression	{$$ = GreaterThanOrEqualToOp($1, $3);}
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression	{$$ = BinOp($1, $2, $3);}
-	| equality_expression NE_OP relational_expression	{$$ = BinOp($1, $2, $3);}
+	| equality_expression EQ_OP relational_expression	{$$ = EqualToOp($1, $2, $3);}
+	| equality_expression NE_OP relational_expression	{$$ = NotEqualToOp($1, $2, $3);}
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression {$$ = BinOp($1, '&', $3);}
+	| and_expression '&' equality_expression {$$ = AndOp($1, '&', $3);}
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression	{$$ = BinOp($1, '^', $3);}
+	| exclusive_or_expression '^' and_expression	{$$ = ExcOrOp($1, '^', $3);}
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression	{$$ = BinOp($1, '^', $3);}
+	| inclusive_or_expression '|' exclusive_or_expression	{$$ = IncOrOp($1, '^', $3);}
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression	{$$ = BinOp($1, $2, $3);}
+	| logical_and_expression AND_OP inclusive_or_expression	{$$ = AndOp($1, $3);}
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression	{$$ = BinOp($1, $2, $3);}
+	| logical_or_expression OR_OP logical_and_expression	{$$ = OrOp($1, $3);}
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression   {$$ = If($1, $3, $5);}
+	| logical_or_expression '?' expression ':' conditional_expression   {$$ = IfElse($1, $3, $5);}
 	;
 
 assignment_expression
@@ -402,8 +398,8 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' statement   {$$ = If($3, $5, NULL);}
-	| IF '(' expression ')' statement ELSE statement     {$$ = If($3, $5, $7);}
+	: IF '(' expression ')' statement   {$$ = If($3, $5);}
+	| IF '(' expression ')' statement ELSE statement     {$$ = IfElse($3, $5, $7);}
 	| SWITCH '(' expression ')' statement   {$$ = Switch($3, $5);}
 	;
 

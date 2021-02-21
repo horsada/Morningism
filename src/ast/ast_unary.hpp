@@ -53,10 +53,10 @@ class AddrUnary : public Unary
         { }
 };
 
-class SizeofUnary : public Unary
+class SizeOfUnary : public Unary
 {
     public:
-        SizeofUnary(ExpressionPtr _thing) :
+        SizeOfUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
 };

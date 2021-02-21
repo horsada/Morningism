@@ -4,5 +4,6 @@
 #include "ast/ast_expression.hpp"
 #include "ast/ast_bin_op.hpp"
 #include "ast/ast_unary.hpp"
+#include "ast/ast_conditional.hpp"
 
 #endif

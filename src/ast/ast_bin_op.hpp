@@ -78,4 +78,12 @@ class GreaterThanOp : public BinOp
         {}
 };
 
+class OrOp : public BinOp
+{
+    public:
+        OrOp(ExpressionPtr _left, ExpressionPtr _right)
+        : BinOp(_left, _right)
+        {}
+};
+
 #endif
