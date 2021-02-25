@@ -1,19 +1,32 @@
-CPPFLAGS += -W -Wall -g 
+CC := g++ # This is the main compiler
+# CC := clang --analyze # and comment out the linker last line for sanity
+SRCDIR := src
+BUILDDIR := build
+TARGET := bin/runner
+ 
+SRCEXT := cpp
+SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
+OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
+CFLAGS := -g # -Wall
 
-# This avoids error: ‘fileno’ was not declared in this scope
-CPPFLAGS += -std=c++0x
+$(TARGET): $(OBJECTS)
+	@echo " Linking..."
+	@echo " $(CC) $^ -o $(TARGET) "; $(CC) $^ -o $(TARGET)
 
-# Avoid warnings about yyunput not used
-CPPFLAGS += -Wno-unused-function
+$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
+	@mkdir -p $(BUILDDIR)
+	@echo " $(CC) $(CFLAGS) -c -o $@ $<"; $(CC) $(CFLAGS) -c -o $@ $<
 
-src/parser.tab.cpp src/parser.tab.hpp : src/parser.y
-    	bison -v -d src/parser.y -o src/parser.tab.cpp
+clean:
+	@echo " Cleaning..."; 
+	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
 
-src/lexer.yy.cpp : src/lexer.flex
-		flex -o src/lexer.yy.cpp src/lexer.flex
+# Tests
+tester:
+	$(CC) $(CFLAGS) test/tester.cpp -o bin/tester
 
-clean : 
-		rm src/*.o
-		rm src/*.yy.cpp
-		rm src/*tab.cpp
+# Spikes
+testing_table:
+	$(CC) $(CFLAGS) spike/testing_table.cpp -o bin/testing_table
 
+.PHONY: clean
