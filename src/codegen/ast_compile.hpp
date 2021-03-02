@@ -1,10 +1,6 @@
 #ifndef ast_compile_hpp
 #define ast_compile_hpp
 
-#include "codegen/table.hpp"
-#include "ast.hpp"
-#include <typeinfo>
-
 void CompileRec(Expression expr, Table head); // Convert ast to 3AC
 
 void Compile(ExpressionPtr ast); // main function

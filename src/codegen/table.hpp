@@ -30,6 +30,11 @@ class Table{
             return 0;
         }
     }
+
+    void addentry(Expression entry, std::string operation){
+        assert(entries.find(entry) == entries.end());
+        entries[entry] = operation;
+    }
 };
 
 #endif

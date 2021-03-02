@@ -7,8 +7,8 @@
 #include <cassert>
 
 #include "ast.hpp"
-#include "codegen/ast_compile.cpp"
 #include "codegen/table.hpp"
 #include "codegen/table.cpp"
+#include "codegen/ast_compile.cpp"
 
 #endif 
