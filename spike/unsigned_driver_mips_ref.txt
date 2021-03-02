@@ -1,0 +1,17 @@
+main:
+addiu   $sp,$sp,-32
+sw      $31,28($sp)
+sw      $fp,24($sp)
+move    $fp,$sp
+jal     f()
+nop
+
+xori    $2,$2,0xb
+sltu    $2,$0,$2
+andi    $2,$2,0x00ff
+move    $sp,$fp
+lw      $31,28($sp)
+lw      $fp,24($sp)
+addiu   $sp,$sp,32
+j       $31
+nop

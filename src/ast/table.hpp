@@ -16,10 +16,11 @@ class Table{
     Table(TablePtr _prev) :
     prev(_prev)
     { }
-
+/*
     std::string getentry(Expression entry){
         assert(entries.find(entry) != entries.end());
-        return entries[entry];
+        std::string instr = entries[entry];
+        return instr;
     }
 
     bool checkentry(Expression entry){
@@ -34,7 +35,7 @@ class Table{
     void addentry(Expression entry, std::string operation){
         assert(entries.find(entry) == entries.end());
         entries[entry] = operation;
-    }
+    }*/
 };
 
 #endif

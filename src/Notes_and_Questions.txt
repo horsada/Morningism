@@ -1,2 +1,5 @@
-
+How to use flex with compiler test cases (e.g. do i need to convert .c to .txt then input into flex?)
+How to structure codegen
+How to structure project directories
+How to take command line .c files
 
