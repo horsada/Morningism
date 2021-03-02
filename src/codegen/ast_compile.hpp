@@ -5,11 +5,6 @@
 #include "ast.hpp"
 #include <typeinfo>
 
-struct E{
-    std::string place;
-    std::string code;
-};
-
 void CompileRec(Expression expr, Table head); // Convert ast to 3AC
 
 void Compile(ExpressionPtr ast); // main function
