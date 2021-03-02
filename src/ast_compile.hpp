@@ -3,8 +3,14 @@
 
 #include "codegen/table.hpp"
 #include "ast.hpp"
+#include <typeinfo>
 
-void CompileRec(std::string destReg, ExpressionPtr arg1, Expression op, ExpressionPtr arg2); // Convert ast to 3AC
+struct E{
+    std::string place;
+    std::string code;
+};
+
+void CompileRec(Expression expr, Table head); // Convert ast to 3AC
 
 void Compile(ExpressionPtr ast); // main function
 

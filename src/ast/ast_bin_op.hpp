@@ -11,6 +11,10 @@ class BinOp : public Expression
             left(_left),
             right(_right)
         {}
+    virtual void foo();
+
+    virtual ~BinOp()
+    {};
 };
 
 class AddOp : public BinOp
@@ -19,9 +23,12 @@ class AddOp : public BinOp
         AddOp(ExpressionPtr _left, ExpressionPtr _right)
         : BinOp(_left, _right)
         {}
+    void foo(){
+        std::cout << "foo being called" << std::endl;
+    }
 };
 
-
+/*
 class SubOp : public BinOp
 {
     public:
@@ -85,5 +92,5 @@ class OrOp : public BinOp
         : BinOp(_left, _right)
         {}
 };
-
+*/
 #endif

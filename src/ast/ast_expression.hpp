@@ -11,5 +11,6 @@ class Expression;
 typedef std::shared_ptr<Expression> ExpressionPtr;
 
 class Expression
-{};
+{
+};
 #endif
