@@ -14,10 +14,8 @@
 
 %union{
     ExpressionPtr expr;
-    int _int;
-    float _double;
-    std::string _string;
-    void _void;
+    double double;
+    std::string string;
 }
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -31,9 +29,23 @@
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
-%type <expr> primary_expression relational_expression equality_expression and_expression shift_expression additive_expression unary_expression multiplicative_expression cast_expression
-%type <_string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP STRING_LITERAL SIZEOF TYPE_NAME
-%type <_int> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT 
+%type <expr> primary_expression relational_expression equality_expression 
+%type <expr> and_expression shift_expression additive_expression 
+%type <expr> unary_expression multiplicative_expression cast_expression
+%type <expr> exclusive_or_expression postfix_expression inclusive_or_expression 
+%type <expr> logical_and_expression logical_or_expression conditional_expression
+%type <expr> expression statement expression_statement type_name selection_statement
+%type <expr> struct_declaration struct_declaration_list struct_or_union struct_or_union_specifier
+%type <expr> iteration_statement jump_statement
+%type <expr> specifier_qualifier_list 
+
+%type <string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE 
+%type <string> BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP 
+%type <string> NE_OP STRING_LITERAL SIZEOF TYPE_NAME IDENTIFIER
+%type <string> TYPEDEF EXTERN STATIC AUTO REGISTER
+%type <string> STRUCT UNION
+
+%type <double> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT 
 
 %start translation_unit
 %%
@@ -72,7 +84,7 @@ unary_expression
 	| '~'	unary_expression		{$$ = ComplementUnary('&');}
 	| '!'	unary_expression		{$$ = NegationUnary('&');}
 	| SIZEOF unary_expression		{$$ = SizeOfUnary($2);}
-	| SIZEOF '(' type_name ')'		{$$ = SizeOfUnary($2);}
+	| SIZEOF '(' type_name ')'		{$$ = SizeOfUnary($3);}
 	;
 
 cast_expression
@@ -101,7 +113,7 @@ shift_expression
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression	{$$ = LLessThanOp($1, $3);}
+	| relational_expression '<' shift_expression	{$$ = LessThanOp($1, $3);}
 	| relational_expression '>' shift_expression	{$$ = GreaterThanOp($1, $3);}
 	| relational_expression LE_OP shift_expression	{$$ = LessThanOrEqualToOp($1, $3);}
 	| relational_expression GE_OP shift_expression	{$$ = GreaterThanOrEqualToOp($1, $3);}
@@ -219,8 +231,8 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {$$ = Struct($1, $2, $3);}
-	| struct_or_union '{' struct_declaration_list '}'   {$$ = Struct($1, NULL, $2);}
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {$$ = Struct($1, $2, $4);}
+	| struct_or_union '{' struct_declaration_list '}'   {$$ = Struct($1, NULL, $3);}
 	| struct_or_union IDENTIFIER    {$$ = Struct($1, $2); }
 	;
 
