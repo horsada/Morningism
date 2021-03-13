@@ -11,10 +11,19 @@ class BinOp : public Expression
             left(_left),
             right(_right)
         {}
-    virtual void foo();
+    public:
+        virtual const std::string getOpcode() const =0;
 
-    virtual ~BinOp()
-    {};
+        virtual void print(std::ostream &dst) const override{
+            dst <<"( ";
+            left->print(dst);
+            dst << " ";
+            dst << getOpcode();
+            dst << " ";
+            right->print(dst);
+            dst << " )";
+        }
+
 };
 
 class AddOp : public BinOp
@@ -23,8 +32,8 @@ class AddOp : public BinOp
         AddOp(ExpressionPtr _left, ExpressionPtr _right)
         : BinOp(_left, _right)
         {}
-    void foo(){
-        std::cout << "foo being called" << std::endl;
+    virtual const std::string getOpcode() const override{ 
+        return "+"; 
     }
 };
 

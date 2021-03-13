@@ -10,7 +10,8 @@
 class Expression;
 typedef std::shared_ptr<Expression> ExpressionPtr;
 
-class Expression
-{
+class Expression{
+    public:
+        virtual void print(std::ostream &dst) const =0;
 };
 #endif

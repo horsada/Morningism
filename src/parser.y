@@ -25,7 +25,7 @@
 
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
 %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
-%token STRUCT UNION ENUM ELLIPSIS
+%token ENUM ELLIPSIS
 
 %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
 
@@ -35,7 +35,6 @@
 %type <expr> exclusive_or_expression postfix_expression inclusive_or_expression 
 %type <expr> logical_and_expression logical_or_expression conditional_expression
 %type <expr> expression statement expression_statement type_name selection_statement
-%type <expr> struct_declaration struct_declaration_list struct_or_union struct_or_union_specifier
 %type <expr> iteration_statement jump_statement
 %type <expr> specifier_qualifier_list 
 
@@ -43,7 +42,6 @@
 %type <string> BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP 
 %type <string> NE_OP STRING_LITERAL SIZEOF TYPE_NAME IDENTIFIER
 %type <string> TYPEDEF EXTERN STATIC AUTO REGISTER
-%type <string> STRUCT UNION
 
 %type <double> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT 
 
@@ -225,29 +223,8 @@ type_specifier
 	| DOUBLE
 	| SIGNED
 	| UNSIGNED
-	| struct_or_union_specifier
 	| enum_specifier
 	| TYPE_NAME
-	;
-
-struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'    {$$ = Struct($1, $2, $4);}
-	| struct_or_union '{' struct_declaration_list '}'   {$$ = Struct($1, NULL, $3);}
-	| struct_or_union IDENTIFIER    {$$ = Struct($1, $2); }
-	;
-
-struct_or_union
-	: STRUCT   
-	| UNION
-	;
-
-struct_declaration_list
-	: struct_declaration
-	| struct_declaration_list struct_declaration
-	;
-
-struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'
 	;
 
 specifier_qualifier_list
@@ -255,17 +232,6 @@ specifier_qualifier_list
 	| type_specifier
 	| type_qualifier specifier_qualifier_list
 	| type_qualifier
-	;
-
-struct_declarator_list
-	: struct_declarator
-	| struct_declarator_list ',' struct_declarator
-	;
-
-struct_declarator
-	: declarator
-	| ':' constant_expression
-	| declarator ':' constant_expression
 	;
 
 enum_specifier
@@ -458,4 +424,12 @@ char *s;
 {
 	fflush(stdout);
 	printf("\n%*s\n%*s\n", column, "^", column, s);
+}
+
+const ExpressionPtr translation_unit;
+
+const ExpressionPtr parseAST(){
+	translation_unit = nullptr;
+	yyparse();
+	return translation_unit;
 }
