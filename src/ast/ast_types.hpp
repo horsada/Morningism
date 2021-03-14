@@ -1,20 +1,19 @@
-#ifndef types_hpp
-#define types_hpp
+#ifndef ast_types_hpp
+#define ast_types_hpp
 
-class Char : public Expression{
+class String : public Expression{
     private:
         std::string id;
     public:
-        Char(const std::string &_id)
+        String(const std::string &_id)
         : id(_id)
     {}
 
-    const std::string getId() const{
+    const std::string getid() const{
         return id; 
     }
 
-    virtual void print(std::ostream &dst) const override
-    {
+    virtual void print(std::ostream &dst) const override{
         dst<<id;
     }
 };
@@ -27,7 +26,7 @@ class Double : public Expression{
         value(_value)
         {  }
 
-    const double getId() const{
+    const double getid() const{
         return value; 
     }
 

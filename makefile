@@ -7,26 +7,23 @@ TARGET := bin/runner
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS := -g # -Wall
+CFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter
+CFLAGS += -I include
 
-$(TARGET): $(OBJECTS)
-	@echo " Linking..."
-	@echo " $(CC) $^ -o $(TARGET) "; $(CC) $^ -o $(TARGET)
+all: bin/compiler
 
-$(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
-	@mkdir -p $(BUILDDIR)
-	@echo " $(CC) $(CFLAGS) -c -o $@ $<"; $(CC) $(CFLAGS) -c -o $@ $<
+src/parser.tab.cpp src/parser.tab.hpp: src/parser.y
+	bison -v -d src/parser.y -o src/parser.tab.cpp
+
+src/lexer.yy.cpp: src/lexer.flex src/parser.tab.hpp
+	flex -o src/lexer.yy.cpp src/lexer.flex
+
+bin/compiler: src/compiler.o src/parser.tab.o src/lexer.yy.o 
+	mkdir -p bin
+	$(CC) $(CFLAGS) -o bin/compiler $^
+
 
 clean:
-	@echo " Cleaning..."; 
-	@echo " $(RM) -r $(BUILDDIR) $(TARGET)"; $(RM) -r $(BUILDDIR) $(TARGET)
-
-# Tests
-tester:
-	$(CC) $(CFLAGS) test/tester.cpp -o bin/tester
-
-# Spikes
-testing_table:
-	$(CC) $(CFLAGS) spike/testing_table.cpp -o bin/testing_table
-
-.PHONY: clean
+	rm src/*.tab.cpp
+	rm src/*.yy.cpp
+	rm bin/*

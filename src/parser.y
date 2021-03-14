@@ -1,15 +1,15 @@
 %code requires{
-  #include "ast.hpp"
+  #include "ast/ast.hpp"
 
-  #include <cassert>
-
-  ExpressionPtr translation_unit; // A way of getting the AST out
+  extern ExpressionPtr g_root; // A way of getting the AST out
 
   //! This is to fix problems when generating C++
   // We are declaring the functions provided by Flex, so
   // that Bison generated code can call them.
   int yylex(void);
   void yyerror(const char *);
+
+  extern FILE* yyin;
 }
 
 %union{
@@ -36,7 +36,8 @@
 %type <expr> logical_and_expression logical_or_expression conditional_expression
 %type <expr> expression statement expression_statement type_name selection_statement
 %type <expr> iteration_statement jump_statement
-%type <expr> specifier_qualifier_list 
+%type <expr> specifier_qualifier_list external_declaration declaration_specifiers declarator
+%type <expr> compound_statement function_definition declaration declaration_list
 
 %type <string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE 
 %type <string> BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP 
@@ -49,10 +50,10 @@
 %%
 
 primary_expression
-	: IDENTIFIER
-	| CONSTANT			{$$ = Number($1);}
-	| STRING_LITERAL	{$$ = Variable($1);}
-	| '(' expression ')'	
+	: IDENTIFIER	{$$ = Variable($1);}
+	| CONSTANT			{$$ = Double($1);}
+	| STRING_LITERAL	{$$ = Char($1);}
+	| '(' expression ')'	{$$ = $2;}
 	;
 
 postfix_expression
@@ -72,7 +73,7 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression			{$$ = Unary($1, NULL);} // TODO: Fix
+	: postfix_expression			{$$ = Unary($1, NULL);} 
 	| INC_OP unary_expression		{$$ = IncrementUnary($2);}
 	| DEC_OP unary_expression		{$$ = DecrementUnary($2);}
 	| '&'	unary_expression		{$$ = ArrUnary('&');}
@@ -397,17 +398,17 @@ jump_statement
 	;
 
 translation_unit
-	: external_declaration
-	| translation_unit external_declaration
+	: external_declaration	{g_root.pushexpr($1);}
+	| translation_unit external_declaration	{g_root.pushexpr($2);}
 	;
 
 external_declaration
-	: function_definition
-	| declaration
+	: function_definition	{$$ = $1;}
+	| declaration	{$$ = $1;}
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement
+	: declaration_specifiers declarator declaration_list compound_statement	{$$ = Function($1, $2, $3);}
 	| declaration_specifiers declarator compound_statement
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
@@ -426,10 +427,14 @@ char *s;
 	printf("\n%*s\n%*s\n", column, "^", column, s);
 }
 
-const ExpressionPtr translation_unit;
+ExpressionPtr g_root;
 
-const ExpressionPtr parseAST(){
-	translation_unit = nullptr;
-	yyparse();
-	return translation_unit;
+ExpressionPtr parseAST(std::string input_file){
+	g_root = TranslationUnit();
+	yyin = fopen(input_file.c_str(), "r");
+	if(yyin){
+		yyparse();
+	}
+	fclose(yyin);
+	return g_root;
 }

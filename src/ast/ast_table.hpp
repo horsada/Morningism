@@ -9,7 +9,7 @@ class Table{
 
     private:
     TablePtr prev;
-    std::map<Expression, std::string> entries;
+    std::map<std::string, std::string> entries;
     std::map<std::string, TablePtr> func;
 
     public:

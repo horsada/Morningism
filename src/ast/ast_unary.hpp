@@ -1,8 +1,6 @@
 #ifndef ast_unary_hpp
 #define ast_unary_hpp
-
-#include "ast_expression.hpp"
-
+/*
 class Unary : public Expression 
 {
     private:
@@ -60,5 +58,5 @@ class SizeOfUnary : public Unary
             Unary(_thing)
         { }
 };
-
+*/
 #endif

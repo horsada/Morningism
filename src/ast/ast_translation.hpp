@@ -1,7 +1,7 @@
 #ifndef translation_hpp
 #define translation_hpp
 
-class TranslationUnit{
+class TranslationUnit : public Expression{
     private:
         std::vector<ExpressionPtr> exprs;
     public:
@@ -12,7 +12,7 @@ class TranslationUnit{
             exprs.push_back(expr);
         }
 
-        virtual void print(){
+        virtual void print(std::ostream &dst) const override{
             for(int i=0; i < exprs.size(); i++){
                 if(exprs[i] != nullptr){
                     exprs[i]->print(std::cout);

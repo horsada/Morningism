@@ -1,6 +1,6 @@
 #ifndef ast_if_hpp
 #define ast_if_hpp
-
+/*
 class If : public Expression
 {
     private:
@@ -38,5 +38,5 @@ class Switch : public Expression
             right(_right)
         {}
 };
-
+*/
 #endif

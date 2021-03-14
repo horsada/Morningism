@@ -6,13 +6,20 @@
 #include <map>
 #include <cassert>
 #include <vector>
+#include <fstream>
+#include <iostream>
+#include <utility>
 
 #include "ast_expression.hpp"
 #include "ast_bin_op.hpp"
 #include "ast_unary.hpp"
 #include "ast_conditional.hpp"
-#include "table.hpp"
-#include "translation.hpp"
-#include "types.hpp"
+#include "ast_table.hpp"
+#include "ast_translation.hpp"
+#include "ast_types.hpp"
+#include "ast_function.hpp"
+#include "ast_variable.hpp"
+
+extern ExpressionPtr parseAST();
 
 #endif
