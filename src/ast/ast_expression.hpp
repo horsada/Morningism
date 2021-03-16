@@ -2,11 +2,15 @@
 #define ast_expression_hpp
 
 class Expression;
-typedef std::shared_ptr<Expression> ExpressionPtr;
+typedef Expression* ExpressionPtr;
 
 class Expression{
     public:
-        virtual void print(std::ostream &dst) const =0;
+        virtual void print(std::ostream &dst) const{
+            std::cout << "test";
+        }
+        
+        //virtual void pushexpr(ExpressionPtr _expr);
 };
 
 #endif

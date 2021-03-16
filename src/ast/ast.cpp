@@ -7,8 +7,8 @@ std::string newreg(){
     return dest;
 }
 
-ExpressionPtr traverseleft(Expression expr){
-    auto cur = std::make_shared<Expression>(expr);
+ExpressionPtr traverseleft(ExpressionPtr expr){
+    ExpressionPtr cur = expr;
     return cur;
 }
 /*

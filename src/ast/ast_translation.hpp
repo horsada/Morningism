@@ -7,9 +7,12 @@ class TranslationUnit : public Expression{
     public:
         TranslationUnit(ExpressionPtr _expr){
             exprs.push_back(_expr);
-        }  
-        void pushexpr(ExpressionPtr expr){
-            exprs.push_back(expr);
+        }
+        
+        TranslationUnit();
+
+        void pushexpr(ExpressionPtr _expr){
+            exprs.push_back(_expr);
         }
 
         virtual void print(std::ostream &dst) const override{

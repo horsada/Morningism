@@ -3,14 +3,14 @@
 
 class String : public Expression{
     private:
-        std::string id;
+        std::string* id;
     public:
-        String(const std::string &_id)
+        String(std::string* _id)
         : id(_id)
     {}
 
     const std::string getid() const{
-        return id; 
+        return *id; 
     }
 
     virtual void print(std::ostream &dst) const override{

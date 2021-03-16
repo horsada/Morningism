@@ -13,10 +13,11 @@
 }
 
 %union{
-    ExpressionPtr expr;
-    double double;
-    std::string string;
+    Expression* expr;
+    double _double;
+    std::string* _string;
 }
+
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
@@ -38,21 +39,23 @@
 %type <expr> iteration_statement jump_statement
 %type <expr> specifier_qualifier_list external_declaration declaration_specifiers declarator
 %type <expr> compound_statement function_definition declaration declaration_list
+%type <expr> initializer statement_list assignment_expression initializer_list labeled_statement 
+%type <expr> translation_unit
 
-%type <string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE 
-%type <string> BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP 
-%type <string> NE_OP STRING_LITERAL SIZEOF TYPE_NAME IDENTIFIER
-%type <string> TYPEDEF EXTERN STATIC AUTO REGISTER
+%type <_string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE 
+%type <_string> BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP 
+%type <_string> NE_OP STRING_LITERAL SIZEOF TYPE_NAME IDENTIFIER
+%type <_string> TYPEDEF EXTERN STATIC AUTO REGISTER
 
-%type <double> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT 
+%type <_double> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT 
 
 %start translation_unit
 %%
 
 primary_expression
-	: IDENTIFIER	{$$ = Variable($1);}
-	| CONSTANT			{$$ = Double($1);}
-	| STRING_LITERAL	{$$ = Char($1);}
+	: IDENTIFIER	{$$ = new Variable($1);}
+	| CONSTANT			{$$ = new Double($1);}
+	| STRING_LITERAL	{$$ = new String($1);}
 	| '(' expression ')'	{$$ = $2;}
 	;
 
@@ -73,17 +76,17 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression			{$$ = Unary($1, NULL);} 
-	| INC_OP unary_expression		{$$ = IncrementUnary($2);}
-	| DEC_OP unary_expression		{$$ = DecrementUnary($2);}
-	| '&'	unary_expression		{$$ = ArrUnary('&');}
-	| '*'	unary_expression		{$$ = PointerUnary('&');}
-	| '+'	unary_expression		{$$ = PositiveUnary('&');}
-	| '-'	unary_expression		{$$ = NegativeUnary('&');}
-	| '~'	unary_expression		{$$ = ComplementUnary('&');}
-	| '!'	unary_expression		{$$ = NegationUnary('&');}
-	| SIZEOF unary_expression		{$$ = SizeOfUnary($2);}
-	| SIZEOF '(' type_name ')'		{$$ = SizeOfUnary($3);}
+	: postfix_expression			{$$ = $1;} 
+	| INC_OP unary_expression		{$$ = new IncrementUnary($2);}
+	| DEC_OP unary_expression		{$$ = new DecrementUnary($2);}
+	| '&'	unary_expression		{$$ = new AddrUnary($2);}
+	| '*'	unary_expression		{$$ = new PointerUnary($2);}
+	| '+'	unary_expression		{$$ = new PositiveUnary($2);}
+	| '-'	unary_expression		{$$ = new NegUnary($2);}
+	| '~'	unary_expression		{$$ = new ComplementUnary($2);}
+	| '!'	unary_expression		{$$ = new NotUnary($2);}
+	| SIZEOF unary_expression		{$$ = new SizeOfUnary($2);}
+	| SIZEOF '(' type_name ')'		{$$ = new SizeOfUnary($3);}
 	;
 
 cast_expression
@@ -93,65 +96,65 @@ cast_expression
 
 multiplicative_expression
 	: cast_expression
-	| multiplicative_expression '*' cast_expression			{$$ = MulOp($1, $3);}
-	| multiplicative_expression '/' cast_expression			{$$ = DivOp($1, $3);}
-	| multiplicative_expression '%' cast_expression			{$$ = ModuloOp($1, $3);}
+	| multiplicative_expression '*' cast_expression			{$$ = new MulOp($1, $3);}
+	| multiplicative_expression '/' cast_expression			{$$ = new DivOp($1, $3);}
+	| multiplicative_expression '%' cast_expression			{$$ = new ModuloOp($1, $3);}
 	;
 
 additive_expression
 	: multiplicative_expression									
-	| additive_expression '+' multiplicative_expression	{$$ = AddOp($1, $3);}
-	| additive_expression '-' multiplicative_expression	{$$ = SubOp($1, $3);}
+	| additive_expression '+' multiplicative_expression	{$$ = new AddOp($1, $3);}
+	| additive_expression '-' multiplicative_expression	{$$ = new SubOp($1, $3);}
 	;
 
 shift_expression
 	: additive_expression
-	| shift_expression LEFT_OP additive_expression	{$$ = LeftShiftOp($1, $3);}
-	| shift_expression RIGHT_OP additive_expression	{$$ = RightShiftOp($1, $3);}
+	| shift_expression LEFT_OP additive_expression	{$$ = new LeftShiftOp($1, $3);}
+	| shift_expression RIGHT_OP additive_expression	{$$ = new RightShiftOp($1, $3);}
 	;
 
 relational_expression
 	: shift_expression
-	| relational_expression '<' shift_expression	{$$ = LessThanOp($1, $3);}
-	| relational_expression '>' shift_expression	{$$ = GreaterThanOp($1, $3);}
-	| relational_expression LE_OP shift_expression	{$$ = LessThanOrEqualToOp($1, $3);}
-	| relational_expression GE_OP shift_expression	{$$ = GreaterThanOrEqualToOp($1, $3);}
+	| relational_expression '<' shift_expression	{$$ = new LessThanOp($1, $3);}
+	| relational_expression '>' shift_expression	{$$ = new GreaterThanOp($1, $3);}
+	| relational_expression LE_OP shift_expression	{$$ = new LessThanOrEqualToOp($1, $3);}
+	| relational_expression GE_OP shift_expression	{$$ = new GreaterThanOrEqualToOp($1, $3);}
 	;
 
 equality_expression
 	: relational_expression
-	| equality_expression EQ_OP relational_expression	{$$ = EqualToOp($1, $2, $3);}
-	| equality_expression NE_OP relational_expression	{$$ = NotEqualToOp($1, $2, $3);}
+	| equality_expression EQ_OP relational_expression	{$$ = new EqualToOp($1, $3);}
+	| equality_expression NE_OP relational_expression	{$$ = new NotEqualToOp($1, $3);}
 	;
 
 and_expression
 	: equality_expression
-	| and_expression '&' equality_expression {$$ = AndOp($1, '&', $3);}
+	| and_expression '&' equality_expression {$$ = new BitAndOp($1, $3);}
 	;
 
 exclusive_or_expression
 	: and_expression
-	| exclusive_or_expression '^' and_expression	{$$ = ExcOrOp($1, '^', $3);}
+	| exclusive_or_expression '^' and_expression	{$$ = new BitExcOrOp($1, $3);}
 	;
 
 inclusive_or_expression
 	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression	{$$ = IncOrOp($1, '^', $3);}
+	| inclusive_or_expression '|' exclusive_or_expression	{$$ = new BitIncOrOp($1, $3);}
 	;
 
 logical_and_expression
 	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression	{$$ = AndOp($1, $3);}
+	| logical_and_expression AND_OP inclusive_or_expression	{$$ = new AndOp($1, $3);}
 	;
 
 logical_or_expression
 	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression	{$$ = OrOp($1, $3);}
+	| logical_or_expression OR_OP logical_and_expression	{$$ = new OrOp($1, $3);}
 	;
 
 conditional_expression
 	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression   {$$ = IfElse($1, $3, $5);}
+	| logical_or_expression '?' expression ':' conditional_expression   {$$ = new IfElse($1, $3, $5);}
 	;
 
 assignment_expression
@@ -329,9 +332,9 @@ direct_abstract_declarator
 	;
 
 initializer
-	: assignment_expression
-	| '{' initializer_list '}'
-	| '{' initializer_list ',' '}'
+	: assignment_expression	{$$ = $1;}
+	| '{' initializer_list '}'	{$$ = $2;}
+	| '{' initializer_list ',' '}'	{$$ = $2;}
 	;
 
 initializer_list
@@ -340,12 +343,12 @@ initializer_list
 	;
 
 statement
-	: labeled_statement
-	| compound_statement
-	| expression_statement
-	| selection_statement
-	| iteration_statement
-	| jump_statement
+	: labeled_statement	{$$ = $1;}
+	| compound_statement	{$$ = $1;}
+	| expression_statement	{$$ = $1;}
+	| selection_statement	{$$ = $1;}
+	| iteration_statement	{$$ = $1;}
+	| jump_statement	{$$ = $1;}
 	;
 
 labeled_statement
@@ -355,10 +358,10 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' '}'
-	| '{' statement_list '}'
-	| '{' declaration_list '}'
-	| '{' declaration_list statement_list '}'
+	: '{' '}'	
+	| '{' statement_list '}'	{$$ = new Table($2);}
+	| '{' declaration_list '}'	{$$ = new Table($2);}
+	| '{' declaration_list statement_list '}'	{$$ = new Table($2, $3);}
 	;
 
 declaration_list
@@ -367,39 +370,39 @@ declaration_list
 	;
 
 statement_list
-	: statement
-	| statement_list statement
+	: statement	{$$ = $1;}
+	| statement_list statement	{$$ = $1;}
 	;
 
 expression_statement
-	: ';'
-	| expression ';'
+	: ';'	{$$ = NULL;}
+	| expression ';'	{$$ = $1;}
 	;
 
 selection_statement
-	: IF '(' expression ')' statement   {$$ = If($3, $5);}
-	| IF '(' expression ')' statement ELSE statement     {$$ = IfElse($3, $5, $7);}
-	| SWITCH '(' expression ')' statement   {$$ = Switch($3, $5);}
+	: IF '(' expression ')' statement   {$$ = new If($3, $5);}
+	| IF '(' expression ')' statement ELSE statement     {$$ = new IfElse($3, $5, $7);}
+	| SWITCH '(' expression ')' statement   {$$ = new Switch($3, $5);}
 	;
 
 iteration_statement
-	: WHILE '(' expression ')' statement    {$$ = While(NULL, $3, $5,);}
-	| DO statement WHILE '(' expression ')' ';' {$$ = While($2, NULL, $5);}
-	| FOR '(' expression_statement expression_statement ')' statement   {$$ = For($3, $4, NULL, $6);}
-	| FOR '(' expression_statement expression_statement expression ')' statement    {$$ = For($3, $4, $5, $7);}
+	: WHILE '(' expression ')' statement    
+	| DO statement WHILE '(' expression ')' ';' 
+	| FOR '(' expression_statement expression_statement ')' statement 
+	| FOR '(' expression_statement expression_statement expression ')' statement    {$$ = new For($3, $4, $5, $7);}
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'   {$$ = Jump($1, $2);}
-	| CONTINUE ';'  {$$ = Jump($1, NULL);}
-	| BREAK ';' {$$ = Jump($1, NULL);}
-	| RETURN ';'    {$$ = Jump($1, NULL);}
-	| RETURN expression ';' {$$ = Jump($1, $2);}
+	: GOTO IDENTIFIER ';'   {$$ = new GoTo($2);}
+	| CONTINUE ';'  {$$ = new Continue();}
+	| BREAK ';' {$$ = new Break();}
+	| RETURN ';'    {$$ = new Return(NULL);}
+	| RETURN expression ';' {$$ = new Return($2);}
 	;
 
 translation_unit
-	: external_declaration	{g_root.pushexpr($1);}
-	| translation_unit external_declaration	{g_root.pushexpr($2);}
+	: external_declaration	
+	| translation_unit external_declaration	{$$ = new TranslationUnit($2);}
 	;
 
 external_declaration
@@ -408,7 +411,7 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement	{$$ = Function($1, $2, $3);}
+	: declaration_specifiers declarator declaration_list compound_statement	{$$ = new Function($1, $2, $3);}
 	| declaration_specifiers declarator compound_statement
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
@@ -420,21 +423,17 @@ function_definition
 extern char yytext[];
 extern int column;
 
-yyerror(s)
+/* yyerror(s); causing error
 char *s;
 {
 	fflush(stdout);
 	printf("\n%*s\n%*s\n", column, "^", column, s);
 }
-
+*/
 ExpressionPtr g_root;
 
-ExpressionPtr parseAST(std::string input_file){
-	g_root = TranslationUnit();
-	yyin = fopen(input_file.c_str(), "r");
-	if(yyin){
-		yyparse();
-	}
-	fclose(yyin);
+ExpressionPtr parseAST(){
+	g_root = 0;
+	yyparse();
 	return g_root;
 }

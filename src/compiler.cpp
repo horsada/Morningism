@@ -1,8 +1,7 @@
 #include "ast/ast.hpp"
 
-int main(int argc, char* argv[]){
-    std::string input_file = argv[1];
-    ExpressionPtr ast = parseAST(input_file);
+int main(){
+    ExpressionPtr ast = parseAST();
     ast->print(std::cout);
     std::cout << std::endl;
 

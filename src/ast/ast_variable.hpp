@@ -3,9 +3,9 @@
 
 class Variable : public Expression{
     private:
-        std::string var;
+        std::string* var;
     public:
-        Variable(std::string _var) :
+        Variable(std::string *_var) :
         var(_var)
         {}
 
@@ -14,7 +14,7 @@ class Variable : public Expression{
         }
 
         std::string getvar(){
-            return var;
+            return *var;
         }
 };
 

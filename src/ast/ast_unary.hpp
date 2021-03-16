@@ -1,6 +1,6 @@
 #ifndef ast_unary_hpp
 #define ast_unary_hpp
-/*
+
 class Unary : public Expression 
 {
     private:
@@ -58,5 +58,29 @@ class SizeOfUnary : public Unary
             Unary(_thing)
         { }
 };
-*/
+
+class PointerUnary : public Unary
+{
+    public:
+        PointerUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
+class PositiveUnary : public Unary
+{
+    public:
+        PositiveUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
+class ComplementUnary : public Unary
+{
+    public:
+        ComplementUnary(ExpressionPtr _thing) :
+            Unary(_thing)
+        { }
+};
+
 #endif

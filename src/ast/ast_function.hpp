@@ -3,11 +3,11 @@
 
 class Function : public Expression{
     private:
-        std::string dec_spec;
+        ExpressionPtr dec_spec;
         ExpressionPtr mid;
         ExpressionPtr right;
     public:
-        Function(std::string &_dec_spec, ExpressionPtr _mid, ExpressionPtr _right) :
+        Function(ExpressionPtr _dec_spec, ExpressionPtr _mid, ExpressionPtr _right) :
         dec_spec(_dec_spec),
         mid(_mid),
         right(_right)

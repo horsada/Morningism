@@ -3,19 +3,22 @@
 
 class Table;
 
-typedef std::shared_ptr<Table> TablePtr;
-
-class Table{
+class Table : public Expression{
 
     private:
-    TablePtr prev;
     std::map<std::string, std::string> entries;
-    std::map<std::string, TablePtr> func;
+    std::map<std::string, ExpressionPtr> func;
 
     public:
-    Table(TablePtr _prev) :
-    prev(_prev)
-    { }
+    Table();
+
+    Table(ExpressionPtr _expr){
+
+    }
+
+    Table(ExpressionPtr _left, ExpressionPtr _right){
+        
+    }
 /*
     std::string getentry(Expression entry){
         assert(entries.find(entry) != entries.end());

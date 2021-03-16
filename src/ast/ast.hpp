@@ -19,6 +19,8 @@
 #include "ast_types.hpp"
 #include "ast_function.hpp"
 #include "ast_variable.hpp"
+#include "ast_loop.hpp"
+#include "ast_lol.hpp"
 
 extern ExpressionPtr parseAST();
 

@@ -1,3 +1,5 @@
+%option noyywrap
+
 D			[0-9]
 L			[a-zA-Z_]
 H			[a-fA-F0-9]
@@ -9,14 +11,15 @@ IS			(u|U|l|L)*
 #include <stdio.h>
 #include <memory>
 #include <utility>
-#define YYSTYPE std::shared_ptr<Expression> Expression
-#include "parser.tab.h"
+#include "ast/ast.hpp"
+#include "parser.tab.hpp"
 
 void count();
+void comment();
 %}
 
 %%
-"/*"			{ comment(); }
+"/*"			// { comment(); }
 
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
@@ -42,16 +45,16 @@ void count();
 "signed"		{ count(); return(SIGNED); }
 "sizeof"		{ count(); return(SIZEOF); }
 "static"		{ count(); return(STATIC); }
-"struct"		{ count(); return(STRUCT); }
+"struct"		// { count(); return(STRUCT); }
 "switch"		{ count(); return(SWITCH); }
 "typedef"		{ count(); return(TYPEDEF); }
-"union"			{ count(); return(UNION); }
+"union"			// { count(); return(UNION); }
 "unsigned"		{ count(); return(UNSIGNED); }
 "void"			{ count(); return(VOID); }
 "volatile"		{ count(); return(VOLATILE); }
 "while"			{ count(); return(WHILE); }
 
-{L}({L}|{D})*		{ count(); return(check_type()); }
+{L}({L}|{D})*		//{ count(); return(check_type()); }
 
 0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
 0{D}+{IS}?		{ count(); return(CONSTANT); }
@@ -116,13 +119,20 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 
 %%
 
+void yyerror (char const *s)
+{
+  fprintf (stderr, "Parse error : %s\n", s);
+  exit(1);
+}
+
+/*
 yywrap()
 {
 	return(1);
 }
 
 
-comment()
+void comment()
 {
 	char c, c1;
 
@@ -142,10 +152,10 @@ loop:
 
 
 int column = 0;
-
+*/
 void count()
 {
-	int i;
+	int i, column;
 
 	for (i = 0; yytext[i] != '\0'; i++)
 		if (yytext[i] == '\n')
@@ -158,21 +168,22 @@ void count()
 	ECHO;
 }
 
-
+/*
 int check_type()
 {
-/*
+
 * pseudo code --- this is what it should check
 *
 *	if (yytext == type_name)
 *		return(TYPE_NAME);
 *
 *	return(IDENTIFIER);
-*/
+
 
 /*
 *	it actually will only return IDENTIFIER
-*/
+
 
 	return(IDENTIFIER);
 }
+*/
