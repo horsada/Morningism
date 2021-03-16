@@ -41,3 +41,8 @@
 
 # vscode
 .vscode*
+
+# src
+*.o
+*.output
+*.gch

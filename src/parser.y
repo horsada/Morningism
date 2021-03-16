@@ -1,3 +1,5 @@
+%define parse.error verbose
+
 %code requires{
   #include "ast/ast.hpp"
 
@@ -10,6 +12,8 @@
   void yyerror(const char *);
 
   extern FILE* yyin;
+
+  
 }
 
 %union{

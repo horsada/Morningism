@@ -9,6 +9,13 @@ class Unary : public Expression
         Unary(ExpressionPtr _thing) :
             thing(_thing)
         { }
+
+        virtual const std::string getunary() const =0;
+
+        virtual void print(std::ostream &dst) const override{
+            dst << getunary();
+            thing->print(dst);
+        }
 };
 
 class IncrementUnary : public Unary
@@ -17,6 +24,10 @@ class IncrementUnary : public Unary
         IncrementUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+
+        virtual const std::string getunary() const override{ 
+        return "++"; 
+    }
 };
 
 class DecrementUnary : public Unary
@@ -25,6 +36,9 @@ class DecrementUnary : public Unary
         DecrementUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "--"; 
+    }
 };
 
 class NegUnary : public Unary
@@ -33,6 +47,9 @@ class NegUnary : public Unary
         NegUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "-"; 
+    }
 };
 
 class NotUnary : public Unary
@@ -41,6 +58,9 @@ class NotUnary : public Unary
         NotUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "!"; 
+    }
 };
 
 class AddrUnary : public Unary
@@ -49,6 +69,9 @@ class AddrUnary : public Unary
         AddrUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "&"; 
+    }
 };
 
 class SizeOfUnary : public Unary
@@ -57,6 +80,9 @@ class SizeOfUnary : public Unary
         SizeOfUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "sizeof("; 
+    }
 };
 
 class PointerUnary : public Unary
@@ -65,6 +91,9 @@ class PointerUnary : public Unary
         PointerUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "*"; 
+    }
 };
 
 class PositiveUnary : public Unary
@@ -73,6 +102,9 @@ class PositiveUnary : public Unary
         PositiveUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "+"; 
+    }
 };
 
 class ComplementUnary : public Unary
@@ -81,6 +113,9 @@ class ComplementUnary : public Unary
         ComplementUnary(ExpressionPtr _thing) :
             Unary(_thing)
         { }
+        virtual const std::string getunary() const override{ 
+        return "~"; 
+    }
 };
 
 #endif

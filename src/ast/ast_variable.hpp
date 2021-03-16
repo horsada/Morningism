@@ -10,7 +10,7 @@ class Variable : public Expression{
         {}
 
         virtual void print(std::ostream &dst) const override{
-            dst << var;
+            dst << *var;
         }
 
         std::string getvar(){

@@ -6,6 +6,8 @@ class Table;
 class Table : public Expression{
 
     private:
+    ExpressionPtr left;
+    ExpressionPtr right;
     std::map<std::string, std::string> entries;
     std::map<std::string, ExpressionPtr> func;
 
@@ -13,12 +15,26 @@ class Table : public Expression{
     Table();
 
     Table(ExpressionPtr _expr){
-
+        left = _expr;
     }
 
     Table(ExpressionPtr _left, ExpressionPtr _right){
-        
+        left = _left;
+        right = _right;
     }
+
+    virtual void print(std::ostream &dst) const override{
+        if(right == NULL){
+            left->print(dst);
+        }
+        else{
+            left->print(dst);
+            dst << " ";
+            right->print(dst);
+        }
+    }
+
+
 /*
     std::string getentry(Expression entry){
         assert(entries.find(entry) != entries.end());
