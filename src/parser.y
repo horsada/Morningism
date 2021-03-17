@@ -9,12 +9,12 @@
   // We are declaring the functions provided by Flex, so
   // that Bison generated code can call them.
   int yylex(void);
-  void yyerror(const char *);
+  void yyerror(FILE* fp, const char *msg);
 
   extern FILE* yyin;
-
-  
 }
+
+%parse-param { FILE* fp }
 
 %union{
     Expression* expr;
@@ -436,8 +436,15 @@ char *s;
 */
 ExpressionPtr g_root;
 
-ExpressionPtr parseAST(){
+ExpressionPtr parseAST(std::string src){
+	const char* c = src.c_str();
+	FILE* fp = fopen(c, "a");
+	if(!fp){
+    fprintf(stderr, "Couldn't open '%s'\n", src.c_str());
+    exit(1);
+    }
+
 	g_root = 0;
-	yyparse();
+	yyparse(fp);
 	return g_root;
-}
+}	

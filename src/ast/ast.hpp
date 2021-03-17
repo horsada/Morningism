@@ -22,6 +22,6 @@
 #include "ast_loop.hpp"
 #include "ast_lol.hpp"
 
-extern ExpressionPtr parseAST();
+extern ExpressionPtr parseAST(std::string src);
 
 #endif

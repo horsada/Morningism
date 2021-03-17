@@ -119,7 +119,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 
 %%
 
-void yyerror (char const *s)
+void yyerror (FILE* fp, char const *s)
 {
   fprintf (stderr, "Parse error : %s\n", s);
   exit(1);
