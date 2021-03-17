@@ -16,23 +16,58 @@ class String : public Expression{
     virtual void print(std::ostream &dst) const override{
         dst<<id;
     }
+    
+    virtual void codegen(std::ostream &dst) override{
+        std::string label = newlabel();
+        dst << ".data" << std::endl;
+        dst << label << ".asciiz " <<  getid() << std::endl;
+
+        dst << ".text" << std::endl;
+        dst << "la " << "$t0, " << label << std::endl;
+        dst << "sw " << "$t0, " << "($sp)" << std::endl;
+        dst << "subu " << "$sp, " << "$sp, " << 4 << std::endl;
+    }
 };
 
 class Double : public Expression{
     private:
-        double value;
+        std::string* value;
     public:
-        Double(double _value) : 
+        Double(std::string* _value) : 
         value(_value)
         {  }
 
-    const double getid() const{
-        return value; 
+    const std::string getid() const{
+        return *value; 
     }
 
     virtual void print(std::ostream &dst) const override
     {
-        dst<<value;
+        dst<< *value;
+    }
+};
+
+class Int : public Expression{
+    private:
+        std::string* value;
+    public:
+        Int(std::string* _value) : 
+        value(_value)
+        {  }
+
+    const std::string getid() const{
+        return *value; 
+    }
+
+    virtual void print(std::ostream &dst) const override
+    {
+        dst<< *value;
+    }
+
+    virtual void codegen(std::ostream &dst) override{
+        dst << "li " << "$t0, " << getid() << std::endl; // load value into t0
+        dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
+        dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp
     }
 };
 

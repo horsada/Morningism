@@ -11,6 +11,10 @@ class Expression{
         }
         
         //virtual void pushexpr(ExpressionPtr _expr);
+
+        virtual void codegen(std::ostream &dst);
+
+        virtual std::string getid();
 };
 
 #endif

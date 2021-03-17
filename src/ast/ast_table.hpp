@@ -1,15 +1,14 @@
 #ifndef table_hpp
 #define table_hpp
 
-class Table;
-
 class Table : public Expression{
 
     private:
     ExpressionPtr left;
     ExpressionPtr right;
-    std::map<std::string, std::string> entries;
-    std::map<std::string, ExpressionPtr> func;
+    std::stack<int> table_stack;
+    std::map<std::string, int> offset; // offset < 0 for local variables, offset > 0 for global variables
+    std::map<std::string, std::string> labels; // To avoid storing same string literal value more than once
 
     public:
     Table();
@@ -34,27 +33,13 @@ class Table : public Expression{
         }
     }
 
-
-/*
-    std::string getentry(Expression entry){
-        assert(entries.find(entry) != entries.end());
-        std::string instr = entries[entry];
-        return instr;
+    void genPush(std::string val){
+        table_stack.push(std::stoi(val));
     }
 
-    bool checkentry(Expression entry){
-        if(entries.find(entry) != entries.end()){
-            return 1;
-        }
-        else{
-            return 0;
-        }
+    void genPop(){
+        table_stack.pop();
     }
-
-    void addentry(Expression entry, std::string operation){
-        assert(entries.find(entry) == entries.end());
-        entries[entry] = operation;
-    }*/
 };
 
 #endif

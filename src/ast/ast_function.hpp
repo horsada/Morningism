@@ -6,6 +6,8 @@ class Function : public Expression{
         ExpressionPtr dec_spec;
         ExpressionPtr mid;
         ExpressionPtr right;
+        std::string return_type;
+        std::string func_name;
     public:
         Function(ExpressionPtr _dec_spec, ExpressionPtr _mid, ExpressionPtr _right) :
         dec_spec(_dec_spec),
@@ -19,6 +21,24 @@ class Function : public Expression{
             mid->print(dst);
             dst << " ";
             right->print(dst);
+        }
+
+        void preamble(std::ostream &dst, std::string f_name){
+            dst << ".text\n" << "_" << f_name << ":" << std::endl;
+        }
+
+        void end(std::ostream &dst, std::string f_name){
+            dst << "lw $ra, " << param_size << "($fp)" << std::endl;
+            dst << "move $t0, $fp" << std::endl;
+            dst << "lw $fp, " << param_size+4 << "($fp)" << std::endl;
+            dst << "jr $ra" << std::endl; 
+        }
+
+        void codegen(std::ostream &dst){
+            std::string f_name = mid->getid();
+            preamble(dst,f_name);
+            right->codegen(dst);
+            end(dst, f_name);
         }
 };
 

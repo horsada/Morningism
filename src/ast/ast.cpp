@@ -1,24 +1,27 @@
 #include "ast.hpp"
 
-std::string newreg(){
+std::string newSreg(){
     static int count = 0;
-    std::string dest = "$" + std::to_string(count);
+    std::string dest = "$s" + std::to_string(count);
     count++;
     return dest;
 }
 
-ExpressionPtr traverseleft(ExpressionPtr expr){
-    ExpressionPtr cur = expr;
-    return cur;
+std::string newtreg(){
+    static int count = 0;
+    std::string dest = "$t" + std::to_string(count);
+    count++;
+    return dest;
 }
-/*
-void CompileRec(Expression expr, Table head){
-    std::string dest = newreg();
-    if(head.checkentry(expr)){
-        //std::cout << dest << " := " << head.getentry(expr) << std::endl;
-    }
-    else{
-        
-    }
+
+std::string newlabel(){
+    static int count = 0;
+    std::string dest = "label" + std::to_string(count) + ":";
+    count++;
+    return dest;
+}
+/* TODO: FIX
+void genpop(std::string t){
+    head.genPop(t);
 }
 */

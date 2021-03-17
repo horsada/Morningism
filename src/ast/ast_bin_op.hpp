@@ -24,6 +24,17 @@ class BinOp : public Expression
             dst << " )";
         }
 
+        virtual void codegen(std::ostream &dst) override{
+            left->codegen(dst);
+            right->codegen(dst);
+
+            // genpop(); TODO: FIX - need to pop values in T0 and T1.
+            // genpop());
+
+            dst << getmips() << ", " << "$t0, " << "$t0, " << "$t1" << std::endl;
+
+            // genpush("$t0");
+        }
 };
 
 class AddOp : public BinOp

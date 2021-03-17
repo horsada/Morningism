@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <utility>
+#include <stack>
 
 #include "ast_expression.hpp"
 #include "ast_bin_op.hpp"
@@ -23,5 +24,11 @@
 #include "ast_lol.hpp"
 
 extern ExpressionPtr parseAST(std::string src);
+
+std::string newlabel();
+
+std::string newtreg();
+
+std::string newsreg();
 
 #endif
