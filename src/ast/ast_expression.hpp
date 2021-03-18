@@ -7,14 +7,16 @@ typedef Expression* ExpressionPtr;
 class Expression{
     public:
         virtual void print(std::ostream &dst) const{
-            std::cout << "test";
+            std::cout << "Unimplemented feature";
         }
         
-        //virtual void pushexpr(ExpressionPtr _expr);
+        virtual void pushexpr(ExpressionPtr _expr){
+            std::cout << "Unimplemented feature";
+        }
 
-        virtual void codegen(std::ostream &dst);
-
-        virtual std::string getid();
+        virtual void codegen(std::ostream &dst){
+            std::cout << "Unimplemented feature";
+        }
 };
 
 #endif

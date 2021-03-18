@@ -7,7 +7,7 @@ class Function : public Expression{
         ExpressionPtr mid;
         ExpressionPtr right;
         std::string return_type;
-        std::string func_name;
+        std::string f_name;
     public:
         Function(ExpressionPtr _dec_spec, ExpressionPtr _mid, ExpressionPtr _right) :
         dec_spec(_dec_spec),
@@ -28,6 +28,7 @@ class Function : public Expression{
         }
 
         void end(std::ostream &dst, std::string f_name){
+            int param_size = 8;
             dst << "lw $ra, " << param_size << "($fp)" << std::endl;
             dst << "move $t0, $fp" << std::endl;
             dst << "lw $fp, " << param_size+4 << "($fp)" << std::endl;
@@ -35,10 +36,14 @@ class Function : public Expression{
         }
 
         void codegen(std::ostream &dst){
-            std::string f_name = mid->getid();
+            std::string f_name = "main";
             preamble(dst,f_name);
             right->codegen(dst);
             end(dst, f_name);
+        }
+
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
         }
 };
 

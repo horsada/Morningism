@@ -11,6 +11,12 @@ class For : public Expression
             left(_left),
             right(_right)
         {}
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class While : public Expression
@@ -22,7 +28,13 @@ class While : public Expression
         While(ExpressionPtr _left, ExpressionPtr _right) : 
             left(_left),
             right(_right)
-        {}       
+        {} 
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        } 
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 #endif

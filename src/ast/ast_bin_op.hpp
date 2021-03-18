@@ -14,6 +14,8 @@ class BinOp : public Expression
     public:
         virtual const std::string getOpcode() const =0;
 
+        virtual std::string getmips() =0;
+
         virtual void print(std::ostream &dst) const override{
             dst <<"( ";
             left->print(dst);
@@ -35,6 +37,9 @@ class BinOp : public Expression
 
             // genpush("$t0");
         }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class AddOp : public BinOp
@@ -46,6 +51,10 @@ class AddOp : public BinOp
         virtual const std::string getOpcode() const override{ 
         return "+"; 
     }
+        virtual std::string getmips() override{
+            return "add";
+        }
+
 };
 
 
@@ -57,7 +66,10 @@ class SubOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "-"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class MulOp : public BinOp
@@ -68,7 +80,10 @@ class MulOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "*"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class DivOp : public BinOp
@@ -79,7 +94,10 @@ class DivOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "/"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class EqualToOp : public BinOp
@@ -90,7 +108,10 @@ class EqualToOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "=="; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class NotEqualToOp : public BinOp
@@ -101,7 +122,10 @@ class NotEqualToOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "!="; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class LessThanOp : public BinOp
@@ -112,7 +136,10 @@ class LessThanOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "<"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class GreaterThanOp : public BinOp
@@ -123,7 +150,10 @@ class GreaterThanOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return ">"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class OrOp : public BinOp
@@ -134,7 +164,10 @@ class OrOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "||"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class LeftShiftOp : public BinOp
@@ -145,7 +178,10 @@ class LeftShiftOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "<<"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class RightShiftOp : public BinOp
@@ -156,7 +192,10 @@ class RightShiftOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return ">>"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class GreaterThanOrEqualToOp : public BinOp
@@ -167,7 +206,10 @@ class GreaterThanOrEqualToOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return ">="; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class BitExcOrOp : public BinOp
@@ -178,7 +220,10 @@ class BitExcOrOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "^"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class BitIncOrOp : public BinOp
@@ -189,7 +234,10 @@ class BitIncOrOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "|"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class AndOp : public BinOp
@@ -200,7 +248,10 @@ class AndOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "&&"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class BitAndOp : public BinOp
@@ -211,7 +262,10 @@ class BitAndOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "&"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };
 
 class ModuloOp : public BinOp
@@ -222,7 +276,10 @@ class ModuloOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "%"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };  
 
 class LessThanOrEqualToOp : public BinOp
@@ -233,7 +290,10 @@ class LessThanOrEqualToOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "<="; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "add";
+        }
 };  
 
 #endif

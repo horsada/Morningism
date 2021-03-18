@@ -22,8 +22,8 @@ bin/compiler: src/compiler.o src/parser.tab.o src/lexer.yy.o
 	mkdir -p bin
 	$(CC) $(CFLAGS) -o bin/compiler $^
 
-
 clean:
+	rm src/*.o
 	rm src/*.tab.cpp
 	rm src/*.yy.cpp
 	rm -R bin/

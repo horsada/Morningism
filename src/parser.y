@@ -362,20 +362,20 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' '}'	
-	| '{' statement_list '}'	{$$ = new Table($2);}
-	| '{' declaration_list '}'	{$$ = new Table($2);}
-	| '{' declaration_list statement_list '}'	{$$ = new Table($2, $3);}
+	: '{' '}'	{$$ = new Scope(NULL);}
+	| '{' statement_list '}'	{$$ = new Scope($2);}
+	| '{' declaration_list '}'	{$$ = new Scope($2);}
+	| '{' declaration_list statement_list '}'	{$$ = new Scope($2, $3);}
 	;
 
 declaration_list
-	: declaration
-	| declaration_list declaration
+	: declaration	{$$ = new List(); $$->pushexpr($1);}
+	| declaration_list declaration	{$1->pushexpr($2); $$ = $1;}
 	;
 
 statement_list
-	: statement	{$$ = $1;}
-	| statement_list statement	{$$ = $1;}
+	: statement	{$$ = new List(); $$->pushexpr($1);}
+	| statement_list statement	{$$->pushexpr($2); $$ = $1;}
 	;
 
 expression_statement
@@ -405,7 +405,7 @@ jump_statement
 	;
 
 translation_unit
-	: external_declaration	
+	: external_declaration	{$$ = $1;}
 	| translation_unit external_declaration	{$$ = new TranslationUnit($2);}
 	;
 

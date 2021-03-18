@@ -26,6 +26,9 @@ class TranslationUnit : public Expression{
             }
         }
 
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
 };
 
 #endif

@@ -16,6 +16,12 @@ class Variable : public Expression{
         std::string getvar(){
             return *var;
         }
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 

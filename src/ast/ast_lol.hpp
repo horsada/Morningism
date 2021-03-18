@@ -12,6 +12,13 @@ class Jump : public Expression
             right(_right)
         {}
         
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class Return : public Expression
@@ -22,6 +29,13 @@ class Return : public Expression
         Return(ExpressionPtr _right) : 
             right(_right)
         {}       
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class GoTo : public Expression
@@ -31,7 +45,14 @@ class GoTo : public Expression
     public:
         GoTo(std::string* _label) : 
             label(_label)
-        {}       
+        {}
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }      
+
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 
@@ -43,6 +64,13 @@ class Continue : public Expression
         Continue(){
 
         }
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+
+        void pushexpr(ExpressionPtr _expr){
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 
@@ -53,6 +81,13 @@ class Break : public Expression
     public:
         Break(){
             
+        }
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        } 
+
+        void pushexpr(ExpressionPtr _expr){
+            std::cout << "Unimplemented feature" << std::endl;
         }
 };
 

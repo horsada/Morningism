@@ -18,7 +18,7 @@ class String : public Expression{
     }
     
     virtual void codegen(std::ostream &dst) override{
-        std::string label = newlabel();
+        std::string label = "label";
         dst << ".data" << std::endl;
         dst << label << ".asciiz " <<  getid() << std::endl;
 
@@ -27,24 +27,33 @@ class String : public Expression{
         dst << "sw " << "$t0, " << "($sp)" << std::endl;
         dst << "subu " << "$sp, " << "$sp, " << 4 << std::endl;
     }
+    virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class Double : public Expression{
     private:
-        std::string* value;
+        std::string value;
     public:
-        Double(std::string* _value) : 
-        value(_value)
+        Double(double _value) : 
+        value(std::to_string(_value))
         {  }
 
     const std::string getid() const{
-        return *value; 
+        return value; 
     }
 
     virtual void print(std::ostream &dst) const override
     {
-        dst<< *value;
+        dst << value;
     }
+    virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class Int : public Expression{
@@ -69,6 +78,9 @@ class Int : public Expression{
         dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
         dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp
     }
+    virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 #endif

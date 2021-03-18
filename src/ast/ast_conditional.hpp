@@ -11,6 +11,12 @@ class If : public Expression
             left(_left),
             right(_right)
         {}
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class IfElse : public Expression
@@ -25,6 +31,12 @@ class IfElse : public Expression
             mid(_mid),
             right(_right)
         {}
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class Switch : public Expression
@@ -37,6 +49,12 @@ class Switch : public Expression
             left(_left),
             right(_right)
         {}
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 #endif

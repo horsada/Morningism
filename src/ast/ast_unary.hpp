@@ -16,6 +16,13 @@ class Unary : public Expression
             dst << getunary();
             thing->print(dst);
         }
+
+        virtual void codegen(std::ostream &dst) override{
+            dst << "Unimplemented feature" << std::endl;
+        }
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
 };
 
 class IncrementUnary : public Unary
