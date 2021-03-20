@@ -7,7 +7,7 @@ TARGET := bin/runner
 SRCEXT := cpp
 SOURCES := $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 OBJECTS := $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
-CFLAGS += -std=c++11 -W -Wall -g -Wno-unused-parameter
+CFLAGS += -std=c++11 -W -Wall -g -s -Wno-unused-parameter
 CFLAGS += -I include
 
 all: bin/compiler
@@ -27,3 +27,5 @@ clean:
 	rm src/*.tab.cpp
 	rm src/*.yy.cpp
 	rm -R bin/
+	rm -r src/parser.output
+	rm -r src/parser.tab.hpp

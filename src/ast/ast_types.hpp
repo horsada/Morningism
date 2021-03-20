@@ -3,17 +3,17 @@
 
 class String : public Expression{
     private:
-        std::string* id;
+        std::string id;
     public:
         String(std::string* _id)
-        : id(_id)
-    {}
+        : id(*_id)
+    {delete _id;}
 
     const std::string getid() const{
-        return *id; 
+        return id; 
     }
 
-    virtual void print(std::ostream &dst) const override{
+    virtual void print(std::ostream &dst) override{
         dst<<id;
     }
     
@@ -34,17 +34,22 @@ class String : public Expression{
 
 class Double : public Expression{
     private:
-        std::string value;
+        //std::string value;
+        double value;
     public:
-        Double(double _value) : 
-        value(std::to_string(_value))
-        {  }
+    /*
+        Double(std::string* _value) : 
+        value(*_value)
+        { delete _value;}
 
     const std::string getid() const{
         return value; 
     }
-
-    virtual void print(std::ostream &dst) const override
+    */
+    Double(double _value) : 
+        value(_value)
+        { }
+    virtual void print(std::ostream &dst) override
     {
         dst << value;
     }
@@ -56,25 +61,65 @@ class Double : public Expression{
         }
 };
 
-class Int : public Expression{
+class IntConst : public Expression{
     private:
-        std::string* value;
+        //std::string value;
+        int32_t value;
     public:
-        Int(std::string* _value) : 
-        value(_value)
-        {  }
+    /*
+        IntConst(std::string* _value) : 
+        value(*_value)
+        { delete _value; }
 
     const std::string getid() const{
-        return *value; 
+        return value; 
     }
+    */
 
-    virtual void print(std::ostream &dst) const override
-    {
-        dst<< *value;
+   IntConst(int32_t _value) : 
+        value(_value)
+        { }
+    virtual void print(std::ostream &dst) override
+    {   
+        dst << "Class Int:";
+        dst<< value;
     }
 
     virtual void codegen(std::ostream &dst) override{
-        dst << "li " << "$t0, " << getid() << std::endl; // load value into t0
+        dst << "li " << "$t0, " << value << std::endl; // load value into t0
+        dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
+        dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp
+    }
+    virtual void pushexpr(ExpressionPtr _expr) override{
+            std::cout << "Unimplemented feature" << std::endl;
+        }
+};
+
+class FloatConst : public Expression{
+    private:
+        //std::string value;
+        double value;
+    public:
+        /*FloatConst(std::string* _value) : 
+        value(*_value)
+        { delete _value; }
+        */
+        FloatConst(double _value) : 
+        value(_value)
+        { }
+    /*
+    const std::string getid() const{
+        return value; 
+    }
+    */
+    virtual void print(std::ostream &dst) override
+    {
+        dst <<"Class FloatConst:";
+        dst<< value;
+    }
+
+    virtual void codegen(std::ostream &dst) override{
+        dst << "li " << "$t0, " << value << std::endl; // load value into t0
         dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
         dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp
     }

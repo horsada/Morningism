@@ -3,24 +3,29 @@
 
 class Function : public Expression{
     private:
-        ExpressionPtr dec_spec;
-        ExpressionPtr mid;
-        ExpressionPtr right;
+        std::string* dec_spec;
+        ExpressionPtr decl = NULL;
+        ExpressionPtr statements = NULL;
         std::string return_type;
         std::string f_name;
     public:
-        Function(ExpressionPtr _dec_spec, ExpressionPtr _mid, ExpressionPtr _right) :
+        Function(std::string* _dec_spec, ExpressionPtr _mid, ExpressionPtr _right) :
         dec_spec(_dec_spec),
-        mid(_mid),
-        right(_right)
+        decl(_mid),
+        statements(_right)
         { }
 
-        virtual void print(std::ostream &dst) const override{
-            dst << dec_spec;
+        virtual ~Function(){
+            delete decl;
+            delete statements;
+        }
+
+        virtual void print(std::ostream &dst) override{
+            dst << "Class Function: ";
             dst << " ";
-            mid->print(dst);
+            decl->print(dst);
             dst << " ";
-            right->print(dst);
+            statements->print(dst);
         }
 
         void preamble(std::ostream &dst, std::string f_name){
@@ -38,7 +43,7 @@ class Function : public Expression{
         void codegen(std::ostream &dst){
             std::string f_name = "main";
             preamble(dst,f_name);
-            right->codegen(dst);
+            statements->codegen(dst);
             end(dst, f_name);
         }
 

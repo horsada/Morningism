@@ -29,6 +29,7 @@ std::string newsreg();
 #include "ast_loop.hpp"
 #include "ast_lol.hpp"
 #include "ast_list_and_scope.hpp"
+#include "ast_other_classes.hpp"
 
 extern ExpressionPtr parseAST(std::string src);
 

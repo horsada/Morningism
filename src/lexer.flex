@@ -56,14 +56,14 @@ void comment();
 
 {L}({L}|{D})*		{ count(); return(IDENTIFIER); }
 
-0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
-0{D}+{IS}?		{ count(); return(CONSTANT); }
-{D}+{IS}?		{ count(); return(CONSTANT); }
+0[xX]{H}+{IS}?		{ count(); return(INT_CONSTANT); }
+0{D}+{IS}?		{ count(); return(INT_CONSTANT); }
+{D}+{IS}?		{ count(); return(INT_CONSTANT); }
 L?'(\\.|[^\\'])+'	{ count(); return(CONSTANT); }
 
-{D}+{E}{FS}?		{ count(); return(CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); return(CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); return(CONSTANT); }
+{D}+{E}{FS}?		{ count(); return(INT_CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ count(); return(FLOAT_CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ count(); return(FLOAT_CONSTANT); }
 
 L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 
@@ -119,7 +119,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 
 %%
 
-void yyerror (FILE* fp, char const *s)
+void yyerror (char const *s)
 {
   fprintf (stderr, "Parse error : %s\n", s);
   exit(1);
@@ -130,8 +130,8 @@ yywrap()
 {
 	return(1);
 }
-
-
+*/
+/*
 void comment()
 {
 	char c, c1;

@@ -16,7 +16,8 @@ class BinOp : public Expression
 
         virtual std::string getmips() =0;
 
-        virtual void print(std::ostream &dst) const override{
+        virtual void print(std::ostream &dst) override{
+            dst << "Class BinOp:";
             dst <<"( ";
             left->print(dst);
             dst << " ";
@@ -68,7 +69,7 @@ class SubOp : public BinOp
         return "-"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "sub";
         }
 };
 

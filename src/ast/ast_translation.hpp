@@ -9,16 +9,19 @@ class TranslationUnit : public Expression{
             exprs.push_back(_expr);
         }
         
-        TranslationUnit();
+        TranslationUnit() {};
 
         void pushexpr(ExpressionPtr _expr){
             exprs.push_back(_expr);
         }
 
-        virtual void print(std::ostream &dst) const override{
+        virtual void print(std::ostream &dst) override{
+            assert(exprs.size() != 0);
+            dst << "Class TranslationUnit";
             for(int i=0; i < exprs.size(); i++){
                 if(exprs[i] != nullptr){
-                    exprs[i]->print(std::cout);
+                    dst << exprs.size();
+                    exprs[i]->print(dst);
                 }
                 else{
                     std::cerr << "nullptr" << std::endl;

@@ -29,6 +29,11 @@ class Return : public Expression
         Return(ExpressionPtr _right) : 
             right(_right)
         {}       
+
+        virtual void print(std::ostream &dst) override{
+            dst << "Class Return:";
+            right->print(dst);
+        }
         virtual void codegen(std::ostream &dst) override{
             dst << "Unimplemented feature" << std::endl;
         }

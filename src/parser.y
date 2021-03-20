@@ -9,20 +9,21 @@
   // We are declaring the functions provided by Flex, so
   // that Bison generated code can call them.
   int yylex(void);
-  void yyerror(FILE* fp, const char *msg);
+  void yyerror(const char *msg);
 
   extern FILE* yyin;
 }
 
-%parse-param { FILE* fp }
+// %parse-param { FILE* fp }
 
 %union{
     Expression* expr;
-    double _double;
+    int32_t _int;
+	double _float;
     std::string* _string;
 }
 
-%token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
+%token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF FLOAT_CONSTANT INT_CONSTANT
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
@@ -39,44 +40,54 @@
 %type <expr> unary_expression multiplicative_expression cast_expression
 %type <expr> exclusive_or_expression postfix_expression inclusive_or_expression 
 %type <expr> logical_and_expression logical_or_expression conditional_expression
-%type <expr> expression statement expression_statement type_name selection_statement
+%type <expr> expression statement expression_statement selection_statement
 %type <expr> iteration_statement jump_statement
-%type <expr> specifier_qualifier_list external_declaration declaration_specifiers declarator
+%type <expr> external_declaration declarator
 %type <expr> compound_statement function_definition declaration declaration_list
-%type <expr> initializer statement_list assignment_expression initializer_list labeled_statement 
-%type <expr> translation_unit
+%type <expr> initializer statement_list assignment_expression initializer_list labeled_statement
+%type <expr> argument_expression_list init_declarator_list init_declarator
+%type <expr> direct_declarator identifier_list parameter_type_list
+%type <expr> parameter_list parameter_declaration constant_expression abstract_declarator
+%type <expr> translation_unit 
 
 %type <_string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE 
 %type <_string> BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP 
 %type <_string> NE_OP STRING_LITERAL SIZEOF TYPE_NAME IDENTIFIER
 %type <_string> TYPEDEF EXTERN STATIC AUTO REGISTER
+%type <_string> MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
+%type <_string>	XOR_ASSIGN OR_ASSIGN 
+%type <_string> type_specifier type_qualifier assignment_operator '=' VOID CHAR
+%type <_string> storage_class_specifier declaration_specifiers specifier_qualifier_list type_name 
+%type <_string> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE 
 
-%type <_double> SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONSTANT 
+%type <_int> INT_CONSTANT 
+%type <_float> FLOAT_CONSTANT
 
 %start translation_unit
 %%
 
 primary_expression
 	: IDENTIFIER	{$$ = new Variable($1);}
-	| CONSTANT			{$$ = new Double($1);}
+	| INT_CONSTANT		{$$ = new IntConst($1);}
+	| FLOAT_CONSTANT	{$$ = new FloatConst($1);}
 	| STRING_LITERAL	{$$ = new String($1);}
 	| '(' expression ')'	{$$ = $2;}
 	;
 
 postfix_expression
-	: primary_expression
-	| postfix_expression '[' expression ']'
-	| postfix_expression '(' ')'
-	| postfix_expression '(' argument_expression_list ')'
+	: primary_expression	{$$ = $1;}
+	| postfix_expression '[' expression ']'	
+	| postfix_expression '(' ')'	{$$ = new FunctionCall($1, NULL);}
+	| postfix_expression '(' argument_expression_list ')'	{$$ = new FunctionCall($1, $3);}
 	| postfix_expression '.' IDENTIFIER
 	| postfix_expression PTR_OP IDENTIFIER
-	| postfix_expression INC_OP
-	| postfix_expression DEC_OP
+	| postfix_expression INC_OP	{$$ = new PostFixOp($1, $2);}
+	| postfix_expression DEC_OP	{$$ = new PostFixOp($1, $2);}
 	;
 
 argument_expression_list
-	: assignment_expression
-	| argument_expression_list ',' assignment_expression
+	: assignment_expression	{$$ = new List(); $$->pushexpr($1);}
+	| argument_expression_list ',' assignment_expression	{$1->pushexpr($3); $$ = $1;}
 	;
 
 unary_expression
@@ -132,7 +143,7 @@ equality_expression
 	;
 
 and_expression
-	: equality_expression
+	: equality_expression	{$$ = $1;}
 	| and_expression '&' equality_expression {$$ = new BitAndOp($1, $3);}
 	;
 
@@ -162,55 +173,55 @@ conditional_expression
 	;
 
 assignment_expression
-	: conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	: conditional_expression	{$$ = $1;}
+	| unary_expression assignment_operator assignment_expression	{$$ = new AssignOp($1, $2, $3);}
 	;
 
-assignment_operator
-	: '='
-	| MUL_ASSIGN
-	| DIV_ASSIGN
-	| MOD_ASSIGN
-	| ADD_ASSIGN
-	| SUB_ASSIGN
-	| LEFT_ASSIGN
-	| RIGHT_ASSIGN
-	| AND_ASSIGN
-	| XOR_ASSIGN
-	| OR_ASSIGN
+assignment_operator	
+	: '='	{$$ = $1;}
+	| MUL_ASSIGN	{$$ = $1;}
+	| DIV_ASSIGN	{$$ = $1;}
+	| MOD_ASSIGN	{$$ = $1;}
+	| ADD_ASSIGN	{$$ = $1;}
+	| SUB_ASSIGN	{$$ = $1;}
+	| LEFT_ASSIGN	{$$ = $1;}
+	| RIGHT_ASSIGN	{$$ = $1;}
+	| AND_ASSIGN	{$$ = $1;}
+	| XOR_ASSIGN	{$$ = $1;}
+	| OR_ASSIGN	{$$ = $1;}
 	;
 
 expression
-	: assignment_expression
+	: assignment_expression	{$$ = $1;}
 	| expression ',' assignment_expression
 	;
 
 constant_expression
-	: conditional_expression
+	: conditional_expression	{$$ = $1;}
 	;
 
 declaration
-	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	: declaration_specifiers ';'	{$$ = new Decl($1, NULL);}
+	| declaration_specifiers init_declarator_list ';'	{$$ = new Decl($1, $2);}
 	;
 
 declaration_specifiers
-	: storage_class_specifier
-	| storage_class_specifier declaration_specifiers
-	| type_specifier
-	| type_specifier declaration_specifiers
-	| type_qualifier
+	: storage_class_specifier	{$$ = $1;}
+	| storage_class_specifier declaration_specifiers	//{$$ = new std::string(*$1 + " " + *$2);}
+	| type_specifier	{$$ = $1;}
+	| type_specifier declaration_specifiers	{$$ = new std::string(*$1 + " " + *$2);}
+	| type_qualifier	{$$ = $1;}
 	| type_qualifier declaration_specifiers
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator
+	: init_declarator	{$$ = new List(); $$->pushexpr($1);}
+	| init_declarator_list ',' init_declarator	{$1->pushexpr($3); $$ = $1;}
 	;
 
 init_declarator
-	: declarator
-	| declarator '=' initializer
+	: declarator	{$$ = new InitDecl($1, NULL);}
+	| declarator '=' initializer	{$$ = new InitDecl($1, $3);}
 	;
 
 storage_class_specifier
@@ -222,24 +233,24 @@ storage_class_specifier
 	;
 
 type_specifier
-	: VOID
-	| CHAR
-	| SHORT
-	| INT
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
+	: VOID	{$$ = $1;}
+	| CHAR	{$$ = $1;}
+	| SHORT	{$$ = $1;}
+	| INT	{$$ = $1;}
+	| LONG	{$$ = $1;}
+	| FLOAT	{$$ = $1;}
+	| DOUBLE	{$$ = $1;}	
+	| SIGNED	{$$ = $1;}
+	| UNSIGNED	{$$ = $1;}
 	| enum_specifier
 	| TYPE_NAME
 	;
 
 specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	| type_qualifier specifier_qualifier_list
-	| type_qualifier
+	: type_specifier specifier_qualifier_list	{$$ = new std::string(*$1 + " " + *$2);}
+	| type_specifier	{$$ = $1;}
+	| type_qualifier specifier_qualifier_list	{$$ = new std::string(*$1 + " " + *$2);}
+	| type_qualifier	{$$ = $1;}
 	;
 
 enum_specifier
@@ -265,17 +276,17 @@ type_qualifier
 
 declarator
 	: pointer direct_declarator
-	| direct_declarator
+	| direct_declarator	{$$ = $1;}
 	;
 
 direct_declarator
-	: IDENTIFIER
-	| '(' declarator ')'
+	: IDENTIFIER	{$$ = new Variable($1);}
+	| '(' declarator ')'	{$$ = $2;}
 	| direct_declarator '[' constant_expression ']'
 	| direct_declarator '[' ']'
-	| direct_declarator '(' parameter_type_list ')'
-	| direct_declarator '(' identifier_list ')'
-	| direct_declarator '(' ')'
+	| direct_declarator '(' parameter_type_list ')'	{$$ = new DirectDecl($1, $3);}
+	| direct_declarator '(' identifier_list ')'	{$$ = new DirectDecl($1, $3);}
+	| direct_declarator '(' ')'	{$$ = new DirectDecl($1, NULL);}
 	;
 
 pointer
@@ -292,29 +303,29 @@ type_qualifier_list
 
 
 parameter_type_list
-	: parameter_list
+	: parameter_list	{$$ = $1;}
 	| parameter_list ',' ELLIPSIS
 	;
 
 parameter_list
-	: parameter_declaration
-	| parameter_list ',' parameter_declaration
+	: parameter_declaration	{$$ = new List(); $$->pushexpr($1);}
+	| parameter_list ',' parameter_declaration	{$1->pushexpr($3); $$ = $1;}
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator
+	: declaration_specifiers declarator	{$$ = new ParamDecl($1, $2);}
 	| declaration_specifiers abstract_declarator
 	| declaration_specifiers
 	;
 
 identifier_list
-	: IDENTIFIER
-	| identifier_list ',' IDENTIFIER
+	: IDENTIFIER	{$$ = new IDList(); $$->pushexpr($1);}
+	| identifier_list ',' IDENTIFIER	{$1->pushexpr($3); $$ = $1;}
 	;
 
 type_name
-	: specifier_qualifier_list
-	| specifier_qualifier_list abstract_declarator
+	: specifier_qualifier_list	{$$ = $1;}
+	| specifier_qualifier_list abstract_declarator	{$$ = $1;}
 	;
 
 abstract_declarator
@@ -342,8 +353,8 @@ initializer
 	;
 
 initializer_list
-	: initializer
-	| initializer_list ',' initializer
+	: initializer	{$$ = new List(); $$->pushexpr($1);}
+	| initializer_list ',' initializer	{$1->pushexpr($3); $$ = $1;}
 	;
 
 statement
@@ -375,7 +386,7 @@ declaration_list
 
 statement_list
 	: statement	{$$ = new List(); $$->pushexpr($1);}
-	| statement_list statement	{$$->pushexpr($2); $$ = $1;}
+	| statement_list statement	{$1->pushexpr($2); $$ = $1;}
 	;
 
 expression_statement
@@ -405,8 +416,8 @@ jump_statement
 	;
 
 translation_unit
-	: external_declaration	{$$ = $1;}
-	| translation_unit external_declaration	{$$ = new TranslationUnit($2);}
+	: external_declaration	{g_root->pushexpr($1);}
+	| translation_unit external_declaration	{g_root->pushexpr($2);}
 	;
 
 external_declaration
@@ -415,9 +426,9 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement	{$$ = new Function($1, $2, $3);}
-	| declaration_specifiers declarator compound_statement
-	| declarator declaration_list compound_statement
+	: declaration_specifiers declarator declaration_list compound_statement	//{$$ = new Function($1, $2, $3);}
+	| declaration_specifiers declarator compound_statement	{$$ = new Function($1, $2, $3);}
+	| declarator declaration_list compound_statement	//{$$ = new Function($1, $2, $3);}
 	| declarator compound_statement
 	;
 
@@ -437,14 +448,16 @@ char *s;
 ExpressionPtr g_root;
 
 ExpressionPtr parseAST(std::string src){
+	/*
 	const char* c = src.c_str();
 	FILE* fp = fopen(c, "a");
 	if(!fp){
     fprintf(stderr, "Couldn't open '%s'\n", src.c_str());
     exit(1);
     }
-
-	g_root = 0;
-	yyparse(fp);
+	*/
+	g_root = new TranslationUnit();
+	yyparse();
+	//fclose(fp);
 	return g_root;
 }	

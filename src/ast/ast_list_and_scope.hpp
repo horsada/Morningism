@@ -12,9 +12,19 @@ class List : public Expression{
         }
 
         virtual void codegen(std::ostream &dst) override{
+            assert(exprs.size() != 0);
             for(int i=0; i < exprs.size(); i++){
-                if(exprs[i]){
+                if(exprs[i] != NULL){
                     exprs[i]->codegen(dst);
+                }
+            }
+        }
+        virtual void print(std::ostream &dst) override{
+            assert(exprs.size() != 0);
+            dst << "Class List:" << exprs.size();
+            for(int i=0; i < exprs.size(); i++){
+                if(exprs[i] != NULL){
+                    exprs[i]->print(dst);
                 }
             }
         }
@@ -33,6 +43,11 @@ class Scope : public Expression{
         Scope(ExpressionPtr _statlist) : 
         statlist(_statlist)
         { }
+
+        virtual void print(std::ostream &dst) override{
+            dst << "Class Scope:";
+            statlist->print(dst);
+        }
 
         virtual void codegen(std::ostream &dst){
             statlist->codegen(dst);

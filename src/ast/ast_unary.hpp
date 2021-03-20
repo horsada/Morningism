@@ -5,14 +5,20 @@ class Unary : public Expression
 {
     private:
         ExpressionPtr thing;
+        std::string* type_name;
     protected:
         Unary(ExpressionPtr _thing) :
             thing(_thing)
         { }
 
+        Unary(std::string* _type_name) :
+            type_name(_type_name),
+            thing(NULL)
+            {}
+
         virtual const std::string getunary() const =0;
 
-        virtual void print(std::ostream &dst) const override{
+        virtual void print(std::ostream &dst) override{
             dst << getunary();
             thing->print(dst);
         }
@@ -84,9 +90,14 @@ class AddrUnary : public Unary
 class SizeOfUnary : public Unary
 {
     public:
-        SizeOfUnary(ExpressionPtr _thing) :
-            Unary(_thing)
+        SizeOfUnary(std::string* _type_name) :
+            Unary(_type_name)
         { }
+
+        SizeOfUnary(ExpressionPtr _unary_expr) :
+            Unary(_unary_expr)
+        {}
+
         virtual const std::string getunary() const override{ 
         return "sizeof("; 
     }
