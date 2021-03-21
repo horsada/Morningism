@@ -30,7 +30,16 @@ class TranslationUnit : public Expression{
         }
 
         virtual void codegen(std::ostream &dst) override{
-            dst << "Unimplemented feature" << std::endl;
+            assert(exprs.size() != 0);
+            dst << "Class TranslationUnit" << std::endl;
+            for(int i=0; i < exprs.size(); i++){
+                if(exprs[i] != nullptr){
+                    exprs[i]->codegen(dst);
+                }
+                else{
+                    std::cerr << "nullptr" << std::endl;
+                }
+            }
         }
 };
 

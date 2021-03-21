@@ -35,7 +35,14 @@ class Return : public Expression
             right->print(dst);
         }
         virtual void codegen(std::ostream &dst) override{
-            dst << "Unimplemented feature" << std::endl;
+            dst << "Class Return:" << std::endl;
+            if(right){
+                right->codegen(dst);
+                dst << "\tmove\t$2,\t" << /* retReg */ "$ra" << std::endl;
+            }
+            else{
+                dst << "\tb\t\n" << "\tnop\n";
+            }
         }
 
         virtual void pushexpr(ExpressionPtr _expr) override{

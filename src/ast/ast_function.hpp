@@ -29,15 +29,15 @@ class Function : public Expression{
         }
 
         void preamble(std::ostream &dst, std::string f_name){
-            dst << ".text\n" << "_" << f_name << ":" << std::endl;
+            dst << "\t.text\n" << "\t_" << f_name << ":" << std::endl;
         }
 
         void end(std::ostream &dst, std::string f_name){
             int param_size = 8;
-            dst << "lw $ra, " << param_size << "($fp)" << std::endl;
-            dst << "move $t0, $fp" << std::endl;
-            dst << "lw $fp, " << param_size+4 << "($fp)" << std::endl;
-            dst << "jr $ra" << std::endl; 
+            dst << "\tlw\t$ra,\t" << param_size << "($fp)" << std::endl;
+            dst << "\tmove\t$t0,\t$fp" << std::endl;
+            dst << "\tlw\t$fp,\t" << param_size+4 << "($fp)" << std::endl;
+            dst << "\tjr\t$ra" << std::endl; 
         }
 
         void codegen(std::ostream &dst){

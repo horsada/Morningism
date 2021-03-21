@@ -85,10 +85,13 @@ class IntConst : public Expression{
         dst<< value;
     }
 
+    virtual int32_t getint() override{
+        return value;
+    }
+
     virtual void codegen(std::ostream &dst) override{
-        dst << "li " << "$t0, " << value << std::endl; // load value into t0
-        dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
-        dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp
+        dst << "Class IntConst:" << std::endl;
+        dst << "\tli\t" << /* destreg */ "$t0,\t" << value << std::endl; // load value into destreg
     }
     virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;

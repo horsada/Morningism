@@ -68,7 +68,7 @@ class AssignOp : public Expression{
 class Decl : public Expression{
     private:
         std::string decl_spec;
-        ExpressionPtr init_decl_list = NULL;
+        ExpressionPtr init_decl_list;
     public:
         Decl(std::string* _decl_spec, ExpressionPtr _init_decl_list) :
         decl_spec(*_decl_spec),
@@ -91,7 +91,8 @@ class Decl : public Expression{
         }
 
         virtual void codegen(std::ostream &dst){
-            std::cout << "Unimplemented feature";
+            dst << "Class Decl:";
+            init_decl_list->codegen(dst);
         }
 };
 
@@ -117,14 +118,15 @@ class DirectDecl : public Expression{
         }
 
         virtual void codegen(std::ostream &dst){
-            std::cout << "Unimplemented feature";
+            dst << "Class DirectDecl:";
+            direct_decl->print(dst);
         }
 };
 
 class InitDecl : public Expression{
     private:
         ExpressionPtr decl;
-        ExpressionPtr initialiser = NULL;
+        ExpressionPtr initialiser;
     public:
         InitDecl(ExpressionPtr _decl, ExpressionPtr _initialiser) :
         decl(_decl),
@@ -148,7 +150,18 @@ class InitDecl : public Expression{
         }
 
         virtual void codegen(std::ostream &dst){
-            std::cout << "Unimplemented feature";
+            dst << "Init Decl:";
+            if(dynamic_cast<Variable*>(decl)){
+                std::string var = decl->getvar();
+                int32_t val = 0;
+                if(dynamic_cast<IntConst*>(initialiser)){
+                    val = initialiser->getint();
+                    dst << "\t.globl  " << var << "\n" << "\t.data\n"
+                    << "\t.align  2\n" << "\t.type   " << var << ", @object\n"
+                    << "\t.size   " << var << ", 4\n" << var << ":\n"
+                    << "\t.word " << val << "\n";
+                }
+            }
         }
 };
 

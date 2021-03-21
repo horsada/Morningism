@@ -28,16 +28,44 @@ class BinOp : public Expression
         }
 
         virtual void codegen(std::ostream &dst) override{
-            left->codegen(dst);
-            right->codegen(dst);
-
-            // genpop(); TODO: FIX - need to pop values in T0 and T1.
-            // genpop());
-
-            dst << getmips() << ", " << "$t0, " << "$t0, " << "$t1" << std::endl;
-
-            // genpush("$t0");
+            dst << "Class BinOp:" << std::endl;
+            if(dynamic_cast<Variable*>(left)){
+                std::string left_var = left->getvar();
+                // std::string left_reg = head.getreg(left_var); Find register associated with left_var
+                if(dynamic_cast<Variable*>(right)){
+                    std::string right_var = right->getvar();
+                    // std::string right_reg = head.getreg(right_var); Find register associated with right_var
+                    dst << "\t" << getmips() << "\t$destReg"<< "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                }
+                else if (dynamic_cast<IntConst*>(right)){
+                    right->codegen(dst);
+                    // std::string right_reg = head.getreg(right_var); Find register associated with right_var
+                    dst << "\t" << getmips() << "\t$destReg" << "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                }
+                else{
+                    dst << "Unimplemented binop" << std::endl;
+                }
+            }
+            else if(dynamic_cast<IntConst*>(left)){
+               left->codegen(dst); // this codegen should store the value in a register
+                if(dynamic_cast<Variable*>(right)){
+                    std::string right_var = right->getvar();
+                    // std::string right_reg = head.getreg(right_var); Find register associated with right_var
+                    dst << "\t" << getmips() << "\t$destReg"<< "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                }
+                else if (dynamic_cast<IntConst*>(right)){
+                    right->codegen(dst);
+                    dst << "\t" << getmips() << "\t$destReg"<< "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                }
+                else{
+                    dst << "Unimplemented binop" << std::endl;
+                }
+            }
+            else{
+                dst << "Unimplemented Binop" << std::endl;
+            }
         }
+
         virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;
         }

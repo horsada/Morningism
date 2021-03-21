@@ -2,6 +2,7 @@
 #define ast_expression_hpp
 
 class Expression;
+class Table;
 typedef Expression* ExpressionPtr;
 
 class Expression{
@@ -23,6 +24,14 @@ class Expression{
 
         virtual void pushexpr(std::string* id){
             std::cout << "Unimplemented feature";
+        }
+
+        virtual std::string getvar(){
+            std::cout << "Class Expression: Unimplemented feature";
+        }
+        
+        virtual int32_t getint(){
+            std::cout << "Class Expression: Unimplemented feature";
         }
 };
 

@@ -35,27 +35,28 @@ class Scope : public Expression{
         ExpressionPtr declist = NULL;
         ExpressionPtr statlist = NULL;
     public:
-        Scope(ExpressionPtr _declist, ExpressionPtr _statlist) :
-        declist(_declist),
-        statlist(_statlist)
-        {}
+    Scope(ExpressionPtr _declist, ExpressionPtr _statlist) :
+    declist(_declist),
+    statlist(_statlist)
+    {}
 
-        Scope(ExpressionPtr _statlist) : 
-        statlist(_statlist)
-        { }
+    Scope(ExpressionPtr _statlist) : 
+    statlist(_statlist)
+    { }
 
-        virtual void print(std::ostream &dst) override{
-            dst << "Class Scope:";
-            statlist->print(dst);
-        }
+    virtual void print(std::ostream &dst) override{
+        dst << "Class Scope:";
+        statlist->print(dst);
+    }
 
-        virtual void codegen(std::ostream &dst){
-            statlist->codegen(dst);
-        }
+    virtual void codegen(std::ostream &dst){
+        dst << "Class Scope:" << std::endl;
+        statlist->codegen(dst);
+    }
 
-        virtual void pushexpr(ExpressionPtr _expr) override{
-            std::cout << "Unimplemented feature" << std::endl;
-        }
+    virtual void pushexpr(ExpressionPtr _expr) override{
+        std::cout << "Unimplemented feature" << std::endl;
+    }
 };
 
 #endif
