@@ -6,6 +6,7 @@ class BinOp : public Expression
     private:
         ExpressionPtr left;
         ExpressionPtr right;
+        std::string dest_reg = "Unassigned destreg";
     protected:
         BinOp(ExpressionPtr _left, ExpressionPtr _right) : 
             left(_left),
@@ -27,35 +28,46 @@ class BinOp : public Expression
             dst << " )";
         }
 
-        virtual void codegen(std::ostream &dst) override{
+        virtual void codegen(Table &head, std::ostream &dst) override{
             dst << "Class BinOp:" << std::endl;
+            dest_reg = head.newsreg();
             if(dynamic_cast<Variable*>(left)){
                 std::string left_var = left->getvar();
-                // std::string left_reg = head.getreg(left_var); Find register associated with left_var
+                std::string left_reg = head.getreg(left_var); //Find register associated with left_var
                 if(dynamic_cast<Variable*>(right)){
                     std::string right_var = right->getvar();
-                    // std::string right_reg = head.getreg(right_var); Find register associated with right_var
-                    dst << "\t" << getmips() << "\t$destReg"<< "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                    std::string right_reg = head.getreg(right_var); //Find register associated with right_var
+                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_reg << "\t" << right_reg << std::endl;
                 }
                 else if (dynamic_cast<IntConst*>(right)){
-                    right->codegen(dst);
+                    right->codegen(head, dst);
+                    std::string right_reg = head.getreg(std::to_string(right->getint()));
                     // std::string right_reg = head.getreg(right_var); Find register associated with right_var
-                    dst << "\t" << getmips() << "\t$destReg" << "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                    dst << "\t" << getmips() << "\t$destReg" << "\t" << "$left_reg,\t" << right_reg << std::endl;
                 }
                 else{
                     dst << "Unimplemented binop" << std::endl;
                 }
             }
             else if(dynamic_cast<IntConst*>(left)){
-               left->codegen(dst); // this codegen should store the value in a register
+               left->codegen(head, dst); // this codegen should store the value in a register
+               std::string left_val = std::to_string(left->getint());
+               std::string left_reg = head.getreg(left_val);
                 if(dynamic_cast<Variable*>(right)){
                     std::string right_var = right->getvar();
-                    // std::string right_reg = head.getreg(right_var); Find register associated with right_var
                     dst << "\t" << getmips() << "\t$destReg"<< "\t" << "$left_reg, " << "$right_reg" << std::endl;
                 }
                 else if (dynamic_cast<IntConst*>(right)){
-                    right->codegen(dst);
-                    dst << "\t" << getmips() << "\t$destReg"<< "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                    right->codegen(head, dst);
+                    std::string right_val = std::to_string(right->getint());
+                    std::string right_reg = head.getreg(right_val);
+                    dst << right_val << left_reg << std::endl;
+                    dst << "\t" << getmips() << "\tdestReg:"<< dest_reg << "\t" << "left_reg:" << left_reg << "\t" << "right_reg" << right_reg << std::endl;
+                }
+                else if(dynamic_cast<BinOp*>(right)){
+                    right->codegen(head, dst);
+                    std::string right_destreg = right->getdestreg();
+                    dst << "\t" << getmips() << "\tdestReg:"<< dest_reg << "\t" << "left_reg:" << left_reg << "\t" << "right_reg" << right_destreg << std::endl;
                 }
                 else{
                     dst << "Unimplemented binop" << std::endl;
@@ -69,6 +81,23 @@ class BinOp : public Expression
         virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;
         }
+
+        virtual std::string getdestreg() override{
+            return dest_reg;
+        }
+};
+
+class AssignOp : public BinOp{
+    public:
+        AssignOp(ExpressionPtr _left, ExpressionPtr _right)
+        : BinOp(_left, _right)
+        {}
+        virtual const std::string getOpcode() const override{ 
+        return "="; 
+        }   
+        virtual std::string getmips() override{
+            return "move";
+        }
 };
 
 class AddOp : public BinOp
@@ -79,7 +108,7 @@ class AddOp : public BinOp
         {}
         virtual const std::string getOpcode() const override{ 
         return "+"; 
-    }
+        }
         virtual std::string getmips() override{
             return "add";
         }
@@ -111,7 +140,7 @@ class MulOp : public BinOp
         return "*"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "mul";
         }
 };
 
@@ -125,7 +154,7 @@ class DivOp : public BinOp
         return "/"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "div";
         }
 };
 
@@ -139,7 +168,7 @@ class EqualToOp : public BinOp
         return "=="; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "seq";
         }
 };
 
@@ -153,7 +182,7 @@ class NotEqualToOp : public BinOp
         return "!="; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "sne";
         }
 };
 
@@ -167,7 +196,7 @@ class LessThanOp : public BinOp
         return "<"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "slt";
         }
 };
 
@@ -181,7 +210,7 @@ class GreaterThanOp : public BinOp
         return ">"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "sgt";
         }
 };
 
@@ -195,7 +224,7 @@ class OrOp : public BinOp
         return "||"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "or";
         }
 };
 
@@ -209,7 +238,7 @@ class LeftShiftOp : public BinOp
         return "<<"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "sll";
         }
 };
 
@@ -223,7 +252,7 @@ class RightShiftOp : public BinOp
         return ">>"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "srl";
         }
 };
 
@@ -237,7 +266,7 @@ class GreaterThanOrEqualToOp : public BinOp
         return ">="; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "sge";
         }
 };
 
@@ -251,7 +280,7 @@ class BitExcOrOp : public BinOp
         return "^"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "xor";
         }
 };
 
@@ -279,7 +308,7 @@ class AndOp : public BinOp
         return "&&"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "and";
         }
 };
 
@@ -307,7 +336,7 @@ class ModuloOp : public BinOp
         return "%"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "rem";
         }
 };  
 
@@ -321,7 +350,7 @@ class LessThanOrEqualToOp : public BinOp
         return "<="; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "sle";
         }
 };  
 

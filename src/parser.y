@@ -23,7 +23,7 @@
     std::string* _string;
 }
 
-%token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF FLOAT_CONSTANT INT_CONSTANT
+%token T_IDENTIFIER CONSTANT STRING_LITERAL SIZEOF FLOAT_CONSTANT INT_CONSTANT
 %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
 %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
@@ -52,7 +52,7 @@
 
 %type <_string> CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE 
 %type <_string> BREAK RETURN PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP 
-%type <_string> NE_OP STRING_LITERAL SIZEOF TYPE_NAME IDENTIFIER
+%type <_string> NE_OP STRING_LITERAL SIZEOF TYPE_NAME T_IDENTIFIER
 %type <_string> TYPEDEF EXTERN STATIC AUTO REGISTER
 %type <_string> MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
 %type <_string>	XOR_ASSIGN OR_ASSIGN 
@@ -67,7 +67,7 @@
 %%
 
 primary_expression
-	: IDENTIFIER	{$$ = new Variable($1);}
+	: T_IDENTIFIER	{$$ = new Variable($1);}
 	| INT_CONSTANT		{$$ = new IntConst($1);}
 	| FLOAT_CONSTANT	{$$ = new FloatConst($1);}
 	| STRING_LITERAL	{$$ = new String($1);}
@@ -79,8 +79,8 @@ postfix_expression
 	| postfix_expression '[' expression ']'	
 	| postfix_expression '(' ')'	{$$ = new FunctionCall($1, NULL);}
 	| postfix_expression '(' argument_expression_list ')'	{$$ = new FunctionCall($1, $3);}
-	| postfix_expression '.' IDENTIFIER
-	| postfix_expression PTR_OP IDENTIFIER
+	| postfix_expression '.' T_IDENTIFIER
+	| postfix_expression PTR_OP T_IDENTIFIER
 	| postfix_expression INC_OP	{$$ = new PostFixOp($1, $2);}
 	| postfix_expression DEC_OP	{$$ = new PostFixOp($1, $2);}
 	;
@@ -174,7 +174,7 @@ conditional_expression
 
 assignment_expression
 	: conditional_expression	{$$ = $1;}
-	| unary_expression assignment_operator assignment_expression	{$$ = new AssignOp($1, $2, $3);}
+	| unary_expression assignment_operator assignment_expression	{$$ = new AssignOp($1, $3);}
 	;
 
 assignment_operator	
@@ -255,8 +255,8 @@ specifier_qualifier_list
 
 enum_specifier
 	: ENUM '{' enumerator_list '}'
-	| ENUM IDENTIFIER '{' enumerator_list '}'
-	| ENUM IDENTIFIER
+	| ENUM T_IDENTIFIER '{' enumerator_list '}'
+	| ENUM T_IDENTIFIER
 	;
 
 enumerator_list
@@ -265,8 +265,8 @@ enumerator_list
 	;
 
 enumerator
-	: IDENTIFIER
-	| IDENTIFIER '=' constant_expression
+	: T_IDENTIFIER
+	| T_IDENTIFIER '=' constant_expression
 	;
 
 type_qualifier
@@ -280,7 +280,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER	{$$ = new Variable($1);}
+	: T_IDENTIFIER	{$$ = new Variable($1);}
 	| '(' declarator ')'	{$$ = $2;}
 	| direct_declarator '[' constant_expression ']'
 	| direct_declarator '[' ']'
@@ -319,8 +319,8 @@ parameter_declaration
 	;
 
 identifier_list
-	: IDENTIFIER	{$$ = new IDList(); $$->pushexpr($1);}
-	| identifier_list ',' IDENTIFIER	{$1->pushexpr($3); $$ = $1;}
+	: T_IDENTIFIER	{$$ = new IDList(); $$->pushexpr($1);}
+	| identifier_list ',' T_IDENTIFIER	{$1->pushexpr($3); $$ = $1;}
 	;
 
 type_name
@@ -367,7 +367,7 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement
+	: T_IDENTIFIER ':' statement
 	| CASE constant_expression ':' statement
 	| DEFAULT ':' statement
 	;
@@ -408,7 +408,7 @@ iteration_statement
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'   {$$ = new GoTo($2);}
+	: GOTO T_IDENTIFIER ';'   {$$ = new GoTo($2);}
 	| CONTINUE ';'  {$$ = new Continue();}
 	| BREAK ';' {$$ = new Break();}
 	| RETURN ';'    {$$ = new Return(NULL);}

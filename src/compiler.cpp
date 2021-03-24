@@ -16,7 +16,8 @@ int main(){
     std::string src = "unused";
     ExpressionPtr ast = parseAST(src);
     std::cout << "*---------------------PARSED CONTENT-----------------*" << std::endl;
-    ast->codegen(std::cout);
+    ast->codegen(head, std::cout);
+    //ast->print(std::cout);
     std::cout << std::endl;
 
     return 0;

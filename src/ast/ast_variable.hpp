@@ -3,25 +3,21 @@
 
 class Variable : public Expression{
     private:
-        std::string* var;
+        std::string var;
     public:
         Variable(std::string* _var) :
-        var(_var)
-        { }
-        /*
-        ~Variable(){
-            delete var;
-        }
-        */
+        var(*_var)
+        { delete _var; }
+
         virtual void print(std::ostream &dst) override{
-            dst << "Class Variable";
+            dst << "Class Variable" /*getvar()*/;
         }
 
         std::string getvar(){
-            return *var;
+            return var;
         }
-        virtual void codegen(std::ostream &dst) override{
-            dst << "Unimplemented feature" << std::endl;
+        virtual void codegen(Table &head, std::ostream &dst) override{
+            dst << "Class Variable:" << std::endl;
         }
 };
 

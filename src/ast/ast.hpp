@@ -17,8 +17,8 @@ std::string newtreg();
 
 std::string newsreg();
 
-#include "ast_expression.hpp"
 #include "ast_table.hpp"
+#include "ast_expression.hpp"
 #include "ast_variable.hpp"
 #include "ast_types.hpp"
 #include "ast_bin_op.hpp"

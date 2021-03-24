@@ -37,7 +37,7 @@ void comment();
 "for"			{ count(); return(FOR); }
 "goto"			{ count(); return(GOTO); }
 "if"			{ count(); return(IF); }
-"int"			{ count(); return(INT); }
+"int"			{ count(); yylval._string = new std::string(yytext); return(INT); }
 "long"			{ count(); return(LONG); }
 "register"		{ count(); return(REGISTER); }
 "return"		{ count(); return(RETURN); }
@@ -54,16 +54,16 @@ void comment();
 "volatile"		{ count(); return(VOLATILE); }
 "while"			{ count(); return(WHILE); }
 
-{L}({L}|{D})*		{ count(); return(IDENTIFIER); }
+{L}({L}|{D})*		{count(); yylval._string = new std::string(yytext); return(T_IDENTIFIER); }
 
-0[xX]{H}+{IS}?		{ count(); return(INT_CONSTANT); }
-0{D}+{IS}?		{ count(); return(INT_CONSTANT); }
-{D}+{IS}?		{ count(); return(INT_CONSTANT); }
+0[xX]{H}+{IS}?		{ count(); yylval._int = atof(yytext); return(INT_CONSTANT); }
+0{D}+{IS}?		{ count(); yylval._int = atof(yytext); return(INT_CONSTANT); }
+{D}+{IS}?		{ count(); yylval._int = atof(yytext); return(INT_CONSTANT); }
 L?'(\\.|[^\\'])+'	{ count(); return(CONSTANT); }
 
-{D}+{E}{FS}?		{ count(); return(INT_CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); return(FLOAT_CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); return(FLOAT_CONSTANT); }
+{D}+{E}{FS}?		{ count(); yylval._int = atof(yytext); return(INT_CONSTANT); }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval._float = atof(yytext); return(FLOAT_CONSTANT); }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval._float = atof(yytext); return(FLOAT_CONSTANT); }
 
 L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 

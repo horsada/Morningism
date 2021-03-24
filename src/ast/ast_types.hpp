@@ -17,7 +17,7 @@ class String : public Expression{
         dst<<id;
     }
     
-    virtual void codegen(std::ostream &dst) override{
+    virtual void codegen(Table &head, std::ostream &dst) override{
         std::string label = "label";
         dst << ".data" << std::endl;
         dst << label << ".asciiz " <<  getid() << std::endl;
@@ -53,8 +53,8 @@ class Double : public Expression{
     {
         dst << value;
     }
-    virtual void codegen(std::ostream &dst) override{
-            dst << "Unimplemented feature" << std::endl;
+    virtual void codegen(Table &head, std::ostream &dst) override{
+            dst << "Class Double: Unimplemented feature" << std::endl;
         }
         virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;
@@ -81,7 +81,7 @@ class IntConst : public Expression{
         { }
     virtual void print(std::ostream &dst) override
     {   
-        dst << "Class Int:";
+        dst << "Class IntConst:";
         dst<< value;
     }
 
@@ -91,8 +91,20 @@ class IntConst : public Expression{
 
     virtual void codegen(std::ostream &dst) override{
         dst << "Class IntConst:" << std::endl;
-        dst << "\tli\t" << /* destreg */ "$t0,\t" << value << std::endl; // load value into destreg
+        dst << "\tli\t" << /* destreg */ "$t0\t" << value << std::endl; // load value into destreg
     }
+
+    virtual void codegen(Table &head, std::ostream &dst) override{
+        dst << "Class IntConst:" << std::endl;
+        std::string reg = head.newtreg();
+        std::string val = std::to_string(getint());
+        int new_offset = head.get_total_offset() + 4;
+        head.add_total_offset(4);
+        head.insert_stack_offset(val, new_offset);
+        dst << "\tli\t" << reg << "\t" << val << std::endl; // load value into destreg
+        dst << "\tsw\t" << reg << "\t" << new_offset << "($sp)" << std::endl;
+    }
+
     virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;
         }
@@ -121,7 +133,7 @@ class FloatConst : public Expression{
         dst<< value;
     }
 
-    virtual void codegen(std::ostream &dst) override{
+    virtual void codegen(Table &head, std::ostream &dst) override{
         dst << "li " << "$t0, " << value << std::endl; // load value into t0
         dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
         dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp

@@ -11,11 +11,19 @@ class List : public Expression{
             exprs.push_back(_expr);
         }
 
-        virtual void codegen(std::ostream &dst) override{
+        virtual void getGlobal(std::vector<std::string> &v) {
+            for (int i = 0; i < exprs.size(); i++) {
+                if (exprs[i]){
+                    exprs[i]->getGlobal(v);
+                }
+            }
+        }
+
+        virtual void codegen(Table &head, std::ostream &dst) override{
             assert(exprs.size() != 0);
             for(int i=0; i < exprs.size(); i++){
                 if(exprs[i] != NULL){
-                    exprs[i]->codegen(dst);
+                    exprs[i]->codegen(head, dst);
                 }
             }
         }
@@ -49,9 +57,9 @@ class Scope : public Expression{
         statlist->print(dst);
     }
 
-    virtual void codegen(std::ostream &dst){
+    virtual void codegen(Table &head, std::ostream &dst){
         dst << "Class Scope:" << std::endl;
-        statlist->codegen(dst);
+        statlist->codegen(head, dst);
     }
 
     virtual void pushexpr(ExpressionPtr _expr) override{

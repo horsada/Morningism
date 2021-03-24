@@ -2,12 +2,11 @@
 #define ast_expression_hpp
 
 class Expression;
-class Table;
+
 typedef Expression* ExpressionPtr;
 
 class Expression{
     public:
-
     virtual ~Expression()
     {}
         virtual void print(std::ostream &dst) {
@@ -22,6 +21,10 @@ class Expression{
             std::cout << "Unimplemented feature";
         }
 
+        virtual void codegen(Table &head, std::ostream &dst){
+            dst << "Class Expression: Unimplemented codegen";
+        }
+
         virtual void pushexpr(std::string* id){
             std::cout << "Unimplemented feature";
         }
@@ -32,6 +35,14 @@ class Expression{
         
         virtual int32_t getint(){
             std::cout << "Class Expression: Unimplemented feature";
+        }
+
+        virtual void getGlobal(std::vector<std::string> &v){
+            std::cout << "Class Expression: getglobal unimplemented";
+        }
+
+        virtual std::string getdestreg(){
+            std::cout << "Unimplemented destReg";
         }
 };
 
