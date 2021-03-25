@@ -22,7 +22,7 @@ class Expression{
         }
 
         virtual void put_type(std::string _type){
-            std::cout << "Class Expression: Unimplemented type" << std::endl;
+            //std::cout << "Class Expression: Unimplemented type" << std::endl;
         }
 
         virtual std::string get_type(){

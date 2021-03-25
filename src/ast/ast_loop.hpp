@@ -41,11 +41,12 @@ class While : public Expression
             right->print(dst);
         }
         virtual void codegen(Table &head, std::ostream &dst) override{
-            dst << "Class While:" << std::endl;
-            std::string begin = "__beginWHILE" + head.newlabel();
-            std::string end = "__endWHILE" + head.newlabel();
+            //dst << "Class While:" << std::endl;
+            std::string begin = head.newlabel();
+            std::string end = head.newlabel();
             assert(left != NULL);
-            dst << "\t" << begin << std::endl;
+            dst << begin << std::endl;
+            int begin_offset = head.get_total_offset();
             left->codegen(head, dst);
             if(dynamic_cast<BinOp*>(left)){
                 std::string dest_reg = left->getdestreg();
@@ -54,6 +55,9 @@ class While : public Expression
             if(right){
                 right->codegen(head,dst);
             }
+            int after_offset = head.get_total_offset();
+            int diff = abs(begin_offset - after_offset);
+            dst << "\taddiu\t$sp\t$sp\t" << diff << std::endl;
             dst << "\tb\t" << begin <<"\n" << "\tnop\n" << end << ":\n";
         } 
         virtual void pushexpr(ExpressionPtr _expr) override{

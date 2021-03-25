@@ -35,7 +35,7 @@ class Return : public Expression
             right->print(dst);
         }
         virtual void codegen(Table &head, std::ostream &dst) override{
-            dst << "Class Return:" << std::endl;
+           // dst << "Class Return:" << std::endl;
             std::string destReg = "";
             right->codegen(head, dst);
             if(dynamic_cast<BinOp*>(right)){
@@ -48,7 +48,7 @@ class Return : public Expression
                 dst << "\tlw\t$v0\t" << 0 << "($sp)" << std::endl;
             }
             else if(dynamic_cast<Variable*>(right)){
-                dst << "Class Variable in return" << std::endl;
+                //dst << "Class Variable in return" << std::endl;
                 //destReg = head.getreg(right->getvar());
                 int offset = head.get_stack_offset(right->getvar());
                 int diff = offset-head.get_total_offset();

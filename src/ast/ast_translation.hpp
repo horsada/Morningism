@@ -30,8 +30,8 @@ class TranslationUnit : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst) override{
-            assert(exprs.size() != 0);
-            dst << "Class TranslationUnit" << std::endl;
+            //assert(exprs.size() != 0);
+            //dst << "Class TranslationUnit" << std::endl;
             for(int i=0; i < exprs.size(); i++){
                 if(exprs[i] != nullptr){
                     exprs[i]->codegen(head, dst);

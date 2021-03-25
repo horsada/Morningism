@@ -38,7 +38,7 @@ class Function : public Expression{
         }
 
         void codegen(Table &head, std::ostream &dst){
-            dst << "Class Function:" << std::endl;
+            //dst << "Class Function:" << std::endl;
             std::string f_name = "";
             if(decl){
                 decl->codegen(head,dst);

@@ -42,7 +42,7 @@ class BinOp : public Expression
         }
 
         virtual void codegen(Table &head, std::ostream &dst) override{
-            dst << "Class BinOp:" << std::endl;
+            //dst << "Class BinOp:" << std::endl;
             dest_reg = head.newsreg();
             std::string left_temp = "";
             std::string right_temp = "";
@@ -438,7 +438,7 @@ class BitIncOrOp : public BinOp
         return "|"; 
         }
         virtual std::string getmips() override{
-            return "add";
+            return "or";
         }
 };
 

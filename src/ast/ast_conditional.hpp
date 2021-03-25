@@ -18,8 +18,8 @@ class If : public Expression
             right->print(dst);
         }
         virtual void codegen(Table &head, std::ostream &dst) override{
-            std::string elselabel = "Else:" + head.newlabel();
-            std::string endlabel = "EndIF:" + head.newlabel();
+            std::string elselabel = head.newlabel();
+            std::string endlabel = head.newlabel();
             if(dynamic_cast<BinOp*>(left)){
                 left->codegen(head, dst);
 

@@ -95,7 +95,7 @@ class IntConst : public Expression{
     }
 
     virtual void codegen(Table &head, std::ostream &dst) override{
-        dst << "Class IntConst:" << std::endl;
+        //dst << "Class IntConst:" << std::endl;
     }
 
     virtual void pushexpr(ExpressionPtr _expr) override{
@@ -134,7 +134,7 @@ class FloatConst : public Expression{
         /*dst << "li " << "$t0, " << value << std::endl; // load value into t0
         dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
         dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp*/
-        dst << "Class FloatConst:" << std::endl;
+       // dst << "Class FloatConst:" << std::endl;
     }
     virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;

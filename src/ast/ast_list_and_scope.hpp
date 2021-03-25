@@ -71,7 +71,7 @@ class Scope : public Expression{
     }
 
     virtual void codegen(Table &head, std::ostream &dst){
-        dst << "Class Scope:" << std::endl;
+        //dst << "Class Scope:" << std::endl;
         if(declist){
             declist->codegen(head,dst);
         }

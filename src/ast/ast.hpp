@@ -10,6 +10,7 @@
 #include <iostream>
 #include <utility>
 #include <stack>
+#include <cmath>
 
 std::string newlabel();
 

@@ -29,8 +29,8 @@ class List : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst) override{
-            assert(exprs.size() != 0);
-            dst << "Class List:" << exprs.size() << std::endl;
+            //assert(exprs.size() != 0);
+            //dst << "Class List:" << exprs.size() << std::endl;
             for(int i=0; i < exprs.size(); i++){
                 if(exprs[i] != NULL){
                     exprs[i]->put_type(type);
@@ -68,8 +68,8 @@ class FunctionCall : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            dst << "Class FunctionCall:";
-            dst << "Unimplemented feature";
+            //dst << "Class FunctionCall:";
+            //dst << "Unimplemented feature";
         }
 };
 
@@ -87,7 +87,7 @@ class PostFixOp : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            std::cout << "Class PostFixOp: Unimplemented feature";
+           // std::cout << "Class PostFixOp: Unimplemented feature";
         }
 };
 
@@ -120,7 +120,7 @@ class Decl : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            dst << "Class Decl:\n" << std::endl;
+            //dst << "Class Decl:\n" << std::endl;
             if(dynamic_cast<List*>(init_decl_list)){
                 init_decl_list->put_type(decl_spec);
             }
@@ -155,7 +155,7 @@ class DirectDecl : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            dst << "Class DirectDecl:\n";
+            //dst << "Class DirectDecl:\n";
             direct_decl->codegen(head, dst);
             head.putfunction(direct_decl->getvar());
             if(param_type_list){
@@ -186,8 +186,8 @@ class InitDecl : public Expression{
         }
 
         virtual void print(std::ostream &dst) override{
-            dst << "Class: Init Decl" << std::endl;
-            assert(initialiser != NULL); // debugging
+            //dst << "Class: Init Decl" << std::endl;
+            //assert(initialiser != NULL); // debugging
             if(initialiser != NULL){
                 decl->print(dst);
                 initialiser->print(dst);
@@ -202,7 +202,7 @@ class InitDecl : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            dst << "Init Decl:\n";
+            //dst << "Init Decl:\n";
             head.add_total_offset(-4);
             int offset = head.get_total_offset();
             dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
@@ -260,7 +260,7 @@ class ParamDecl : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            std::cout << "Class ParamDecl:" << decl_spec << std::endl;
+            //std::cout << "Class ParamDecl:" << decl_spec << std::endl;
             if(dynamic_cast<Variable*>(init_decl_list)){
                 std::string a_reg = head.newareg();
                 head.insert_reg(init_decl_list->getvar(), a_reg);
@@ -292,7 +292,7 @@ class IDList : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            std::cout << "Class IDList: Unimplemented feature";
+            //std::cout << "Class IDList: Unimplemented feature";
         }
 };
 /*
@@ -350,7 +350,7 @@ class AssignOp : public Expression{
             dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
             if(dynamic_cast<Variable*>(decl)){
                 std::string arg_reg = head.getreg(decl->getvar());
-                dst << "Class AssignOp:" << std::endl;
+                //dst << "Class AssignOp:" << std::endl;
                 if(dynamic_cast<IntConst*>(initialiser)){
                     int val = initialiser->getint();
                     /*dst << "\t.globl  " << var << "\n" << "\t.data\n"
