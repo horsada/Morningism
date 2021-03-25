@@ -29,19 +29,22 @@ class Function : public Expression{
         }
 
         void preamble(Table &head, std::ostream &dst, std::string f_name){
-            dst << "\t.text\n" << "\t_" << f_name << ":" << std::endl;
+            dst << "\n\t.text\n" << "\t_" << f_name << ":" << std::endl;
         }
 
         void end(Table &head, std::ostream &dst, std::string f_name){
             int param_size = head.get_total_offset()*-1;
-            dst << "\taddiu\t$sp\t$sp\t" << param_size << "\n" << "\tjr\t$ra\n\top" << std::endl;
+            dst << "\taddiu\t$sp\t$sp\t" << param_size << "\n" << "\tjr\t$ra\n\tnop" << std::endl;
         }
 
         void codegen(Table &head, std::ostream &dst){
             dst << "Class Function:" << std::endl;
+            std::string f_name = "";
             if(decl){
                 decl->codegen(head,dst);
+                decl->function_var(head);
             }
+            f_name = head.get_func_name();
             preamble(head, dst,f_name);
             if(statements){
                 statements->codegen(head, dst);

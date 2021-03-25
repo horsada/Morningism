@@ -50,6 +50,21 @@ class Table{
         }
     }
 
+        std::string newareg(){
+        static int count = 0;
+        if(count < 5){
+            std::string dest = "$a" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+        else{
+            count = 0;
+            std::string dest = "$a" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+    }
+
     std::string newtreg(){
         static int count = 0;
         if(count < 8){
@@ -106,7 +121,6 @@ class Table{
     }
 
     std::string get_func_name(){
-        std::cout << "entered get_func_name";
             return func_name;
         }
 

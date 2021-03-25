@@ -21,7 +21,6 @@ class Variable : public Expression{
         }
 
         virtual void function_var(Table &head) override{
-            std::cout << "entered function_var";
             head.putfunction(getvar());
         }
 };

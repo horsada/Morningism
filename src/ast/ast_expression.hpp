@@ -46,7 +46,10 @@ class Expression{
         }
 
         virtual void function_var(Table &head){
-            std::cout << "Unimplemented function_var";
+        }
+
+        virtual void codegen(Table &head, std::ostream &dst, std::string arg_reg){
+            dst << "Class Expression: Unimplemented arg_reg codegen";
         }
 };
 

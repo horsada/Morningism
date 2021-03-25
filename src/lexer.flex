@@ -36,7 +36,7 @@ void comment();
 "float"			{ count(); return(FLOAT); }
 "for"			{ count(); return(FOR); }
 "goto"			{ count(); return(GOTO); }
-"if"			{ count(); return(IF); }
+"if"			{ count(); yylval._string = new std::string(yytext); return(IF); }
 "int"			{ count(); yylval._string = new std::string(yytext); return(INT); }
 "long"			{ count(); return(LONG); }
 "register"		{ count(); return(REGISTER); }
@@ -52,7 +52,7 @@ void comment();
 "unsigned"		{ count(); return(UNSIGNED); }
 "void"			{ count(); return(VOID); }
 "volatile"		{ count(); return(VOLATILE); }
-"while"			{ count(); return(WHILE); }
+"while"			{ count(); yylval._string = new std::string(yytext); return(WHILE); }
 
 {L}({L}|{D})*		{count(); yylval._string = new std::string(yytext); return(T_IDENTIFIER); }
 
@@ -65,7 +65,7 @@ L?'(\\.|[^\\'])+'	{ count(); return(CONSTANT); }
 {D}*"."{D}+({E})?{FS}?	{ count(); yylval._float = atof(yytext); return(FLOAT_CONSTANT); }
 {D}+"."{D}*({E})?{FS}?	{ count(); yylval._float = atof(yytext); return(FLOAT_CONSTANT); }
 
-L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
+L?\"(\\.|[^\\"])*\"	{ count(); yylval._string = new std::string(yytext); return(STRING_LITERAL); }
 
 "..."			{ count(); return(ELLIPSIS); }
 ">>="			{ count(); return(RIGHT_ASSIGN); }

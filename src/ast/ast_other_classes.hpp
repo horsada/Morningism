@@ -106,6 +106,10 @@ class DirectDecl : public Expression{
         virtual void codegen(Table &head, std::ostream &dst){
             dst << "Class DirectDecl:\n";
             direct_decl->codegen(head, dst);
+            head.putfunction(direct_decl->getvar());
+            if(param_type_list){
+                param_type_list->codegen(head, dst);
+            }
         }
 };
 
@@ -151,7 +155,6 @@ class InitDecl : public Expression{
             if(dynamic_cast<Variable*>(decl)){
                 std::string var = decl->getvar();
                 head.insert_stack_offset(var, offset);
-                head.insert_reg(var, t_reg);
                 if(dynamic_cast<IntConst*>(initialiser)){
                     int val = initialiser->getint();
                     /*dst << "\t.globl  " << var << "\n" << "\t.data\n"
@@ -190,7 +193,15 @@ class ParamDecl : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            std::cout << "Class ParamDecl: Unimplemented feature";
+            std::cout << "Class ParamDecl:" << decl_spec << std::endl;
+            if(dynamic_cast<Variable*>(init_decl_list)){
+                std::string a_reg = head.newareg();
+                head.insert_reg(init_decl_list->getvar(), a_reg);
+                head.add_total_offset(-4);
+                head.insert_stack_offset(init_decl_list->getvar(), head.get_total_offset());
+                dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
+                dst << "\tsw\t" << a_reg << "\t" << "0($sp)" << std::endl;
+            }
         }
 };
 
@@ -248,4 +259,45 @@ class DeclSpec : public Expression{
         }
 };
 */
+
+class AssignOp : public Expression{
+    private:
+    ExpressionPtr decl;
+    ExpressionPtr initialiser;
+    public:
+        AssignOp(ExpressionPtr _decl, ExpressionPtr _initialiser) : 
+        decl(_decl),
+        initialiser(_initialiser)
+        {}/*
+        virtual const std::string getOpcode() const override{ 
+        return "="; 
+        }   
+        virtual std::string getmips() override{
+            return "move";
+        }
+        */
+        virtual void codegen(Table &head, std::ostream &dst) override{
+            std::string dest_reg = head.newsreg();
+            if(dynamic_cast<Variable*>(decl)){
+                std::string arg_reg = head.getreg(decl->getvar());
+                dst << "Class AssignOp:" << std::endl;
+                if(dynamic_cast<IntConst*>(initialiser)){
+                    int val = initialiser->getint();
+                    /*dst << "\t.globl  " << var << "\n" << "\t.data\n"
+                    << "\t.align  2\n" << "\t.type   " << var << ", @object\n"
+                    << "\t.size   " << var << ", 4\n" << var << ":\n"
+                    << "\t.word " << val << "\n";*/
+                    dst << "\tli\t" << arg_reg << "\t" << val << std::endl; 
+                    dst << "\tsw\t" << arg_reg << "\t" << "0($sp)" << std::endl;
+                }
+                if(dynamic_cast<BinOp*>(initialiser)){
+                initialiser->codegen(head, dst, arg_reg);
+                std::string dest_reg = initialiser->getdestreg();
+                head.insert_stack_offset(decl->getvar(), head.get_total_offset());
+                dst << "\tsw\t" << dest_reg << "\t" << "0($sp)" << std::endl;
+                }
+                //dst << "\tmove\t" << dest_reg << "\t" << arg_reg << std::endl;
+            }
+        }
+};
 #endif
