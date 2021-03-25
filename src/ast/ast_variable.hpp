@@ -4,6 +4,7 @@
 class Variable : public Expression{
     private:
         std::string var;
+        std::string type = "";
     public:
         Variable(std::string* _var) :
         var(*_var)

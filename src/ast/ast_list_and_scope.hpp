@@ -1,14 +1,23 @@
 #ifndef ast_list_and_scope_hpp
 #define ast_list_and_scope_hpp
-
+/*
 class List : public Expression{
     private:
         std::vector<ExpressionPtr> exprs;
+        std::string type;
     public:
         List() {};
         
         virtual void pushexpr(ExpressionPtr _expr) override{
             exprs.push_back(_expr);
+        }
+
+        virtual void put_type(std::string _type) override{
+            type = _type;
+        }
+
+        virtual std::string get_type() override{
+           return type;
         }
 
         virtual void getGlobal(std::vector<std::string> &v) {
@@ -24,6 +33,9 @@ class List : public Expression{
             dst << "Class List:" << exprs.size() << std::endl;
             for(int i=0; i < exprs.size(); i++){
                 if(exprs[i] != NULL){
+                    if(dynamic_cast<InitDecl*>(exprs[i])){
+                        exprs[i]->put_type(type);
+                    }
                     exprs[i]->codegen(head, dst);
                 }
             }
@@ -38,7 +50,7 @@ class List : public Expression{
             }
         }
 };
-
+*/
 class Scope : public Expression{
     private:
         ExpressionPtr declist = NULL;

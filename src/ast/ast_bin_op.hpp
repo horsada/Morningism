@@ -7,6 +7,7 @@ class BinOp : public Expression
         ExpressionPtr left;
         ExpressionPtr right;
         std::string dest_reg = "Unassigned destreg";
+        std::string type = "";
     protected:
         BinOp(ExpressionPtr _left, ExpressionPtr _right) : 
             left(_left),
@@ -16,6 +17,18 @@ class BinOp : public Expression
         virtual const std::string getOpcode() const =0;
 
         virtual std::string getmips() =0;
+
+        virtual std::string getfmips(){
+            std::cout << "Unimplemented getfmips";
+        }
+
+        virtual void put_type(std::string _type) override{
+            type = _type;
+        }
+
+        virtual std::string get_type() override{
+            return type;
+        }
 
         virtual void print(std::ostream &dst) override{
             dst << "Class BinOp:";
@@ -43,7 +56,16 @@ class BinOp : public Expression
                 }
                     int left_offset = head.get_stack_offset(left_var); //Find offset associated with left_var
                     int left_diff = left_offset - head.get_total_offset(); 
-                    dst << "\tlw\t" << left_temp << "\t" << left_diff << "($sp)" << std::endl;
+
+                    if(left_temp.find('f') != std::string::npos){
+                        dest_reg = head.newfreg();
+                        dst << "\tlwc1\t" << left_temp << "\t" << left_diff << "($sp)" << std::endl;
+                        dst << "\t" << getfmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
+                    }
+                    else{
+                        dst << "\tlw\t" << left_temp << "\t" << left_diff << "($sp)" << std::endl;
+                    }
+
                 if(dynamic_cast<Variable*>(right)){
                     std::string right_var = right->getvar();
                     if(head.getreg(right_var) != ""){
@@ -54,8 +76,15 @@ class BinOp : public Expression
                 }
                     int right_offset = head.get_stack_offset(right_var); //Find offset associated with left_var
                     int right_diff = right_offset - head.get_total_offset();
-                    dst << "\tlw\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
-                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
+                    if(right_temp.find('f') != std::string::npos){
+                        dest_reg = head.newfreg();
+                        dst << "\tlwc1\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
+                        dst << "\t" << getfmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
+                    }
+                    else{
+                        dst << "\tlw\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
+                        dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
+                    }
                 }
                 else if (dynamic_cast<IntConst*>(right)){
                     std::string right_temp = head.newtreg();
@@ -121,8 +150,15 @@ class BinOp : public Expression
                     std::string right_temp = head.newtreg();
                     int right_offset = head.get_stack_offset(right_var); //Find offset associated with left_var
                     int right_diff = right_offset - head.get_total_offset();
-                    dst << "\tlw\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
-                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
+                    if(right_temp.find('f') != std::string::npos){
+                        dest_reg = head.newfreg();
+                        dst << "\tlwc1\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
+                        dst << "\t" << getfmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
+                    }
+                    else{
+                        dst << "\tlw\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
+                        dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
+                    }
                 }
                 else if (dynamic_cast<IntConst*>(right)){
                     std::string right_temp = head.newtreg();
@@ -180,6 +216,9 @@ class AddOp : public BinOp
             return "add";
         }
 
+        virtual std::string getfmips() override{
+            return "add.s";
+        }
 };
 
 
@@ -195,6 +234,10 @@ class SubOp : public BinOp
         virtual std::string getmips() override{
             return "sub";
         }
+
+        virtual std::string getfmips() override{
+            return "sub.s";
+        }
 };
 
 class MulOp : public BinOp
@@ -208,6 +251,10 @@ class MulOp : public BinOp
         }
         virtual std::string getmips() override{
             return "mul";
+        }
+
+        virtual std::string getfmips() override{
+            return "mul.s";
         }
 };
 
@@ -223,6 +270,10 @@ class DivOp : public BinOp
         virtual std::string getmips() override{
             return "div";
         }
+
+        virtual std::string getfmips() override{
+            return "div.s";
+        }
 };
 
 class EqualToOp : public BinOp
@@ -236,6 +287,10 @@ class EqualToOp : public BinOp
         }
         virtual std::string getmips() override{
             return "seq";
+        }
+
+        virtual std::string getfmips() override{
+            return "c.eq.s";
         }
 };
 
@@ -251,6 +306,10 @@ class NotEqualToOp : public BinOp
         virtual std::string getmips() override{
             return "sne";
         }
+
+        virtual std::string getfmips() override{
+            return "c.ne.s";
+        }
 };
 
 class LessThanOp : public BinOp
@@ -265,6 +324,10 @@ class LessThanOp : public BinOp
         virtual std::string getmips() override{
             return "slt";
         }
+
+        virtual std::string getfmips() override{
+            return "c.lt.s";
+        }
 };
 
 class GreaterThanOp : public BinOp
@@ -278,6 +341,10 @@ class GreaterThanOp : public BinOp
         }
         virtual std::string getmips() override{
             return "sgt";
+        }
+
+        virtual std::string getfmips() override{
+            return "c.gt.s";
         }
 };
 
@@ -307,6 +374,9 @@ class LeftShiftOp : public BinOp
         virtual std::string getmips() override{
             return "sll";
         }
+        virtual std::string getfmips() override{
+            return "add.s";
+        }
 };
 
 class RightShiftOp : public BinOp
@@ -321,6 +391,9 @@ class RightShiftOp : public BinOp
         virtual std::string getmips() override{
             return "srl";
         }
+        virtual std::string getfmips() override{
+            return "add.s";
+        }
 };
 
 class GreaterThanOrEqualToOp : public BinOp
@@ -334,6 +407,10 @@ class GreaterThanOrEqualToOp : public BinOp
         }
         virtual std::string getmips() override{
             return "sge";
+        }
+
+        virtual std::string getfmips() override{
+            return "c.ge.s";
         }
 };
 
@@ -418,6 +495,10 @@ class LessThanOrEqualToOp : public BinOp
         }
         virtual std::string getmips() override{
             return "sle";
+        }
+
+        virtual std::string getfmips() override{
+            return "c.le.s";
         }
 };  
 

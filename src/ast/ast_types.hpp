@@ -126,10 +126,15 @@ class FloatConst : public Expression{
         dst<< value;
     }
 
+    virtual double getfloat() override{
+        return value;
+    }
+
     virtual void codegen(Table &head, std::ostream &dst) override{
-        dst << "li " << "$t0, " << value << std::endl; // load value into t0
+        /*dst << "li " << "$t0, " << value << std::endl; // load value into t0
         dst << "sw " << "$t0, " << "($sp)" << std::endl; // push onto stack
-        dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp
+        dst << "subu " << "$sp, " << "$sp, " << 4; // decrement $sp*/
+        dst << "Class FloatConst:" << std::endl;
     }
     virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;

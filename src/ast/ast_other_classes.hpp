@@ -1,6 +1,54 @@
 #ifndef ast_other_classes_hpp
 #define ast_other_classes_hpp
 
+class List : public Expression{
+    private:
+        std::vector<ExpressionPtr> exprs;
+        std::string type;
+    public:
+        List() {};
+        
+        virtual void pushexpr(ExpressionPtr _expr) override{
+            exprs.push_back(_expr);
+        }
+
+        virtual void put_type(std::string _type) override{
+            type = _type;
+        }
+
+        virtual std::string get_type() override{
+           return type;
+        }
+
+        virtual void getGlobal(std::vector<std::string> &v) {
+            for (int i = 0; i < exprs.size(); i++) {
+                if (exprs[i]){
+                    exprs[i]->getGlobal(v);
+                }
+            }
+        }
+
+        virtual void codegen(Table &head, std::ostream &dst) override{
+            assert(exprs.size() != 0);
+            dst << "Class List:" << exprs.size() << std::endl;
+            for(int i=0; i < exprs.size(); i++){
+                if(exprs[i] != NULL){
+                    exprs[i]->put_type(type);
+                    exprs[i]->codegen(head, dst);
+                }
+            }
+        }
+        virtual void print(std::ostream &dst) override{
+            assert(exprs.size() != 0);
+            dst << "Class List:" << exprs.size();
+            for(int i=0; i < exprs.size(); i++){
+                if(exprs[i] != NULL){
+                    exprs[i]->print(dst);
+                }
+            }
+        }
+};
+
 class FunctionCall : public Expression{
     private:
         ExpressionPtr postfix;
@@ -72,7 +120,10 @@ class Decl : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            dst << "Class Decl:\n";
+            dst << "Class Decl:\n" << std::endl;
+            if(dynamic_cast<List*>(init_decl_list)){
+                init_decl_list->put_type(decl_spec);
+            }
             init_decl_list->codegen(head, dst);
         }
 };
@@ -117,6 +168,7 @@ class InitDecl : public Expression{
     private:
         ExpressionPtr decl;
         ExpressionPtr initialiser;
+        std::string type = "";
     public:
         InitDecl(ExpressionPtr _decl, ExpressionPtr _initialiser) :
         decl(_decl),
@@ -127,6 +179,10 @@ class InitDecl : public Expression{
             if (dynamic_cast<Variable *>(decl)){
                 v.push_back(decl->getvar());
             }
+        }
+
+        virtual void put_type(std::string _type) override{
+            type = _type;
         }
 
         virtual void print(std::ostream &dst) override{
@@ -155,6 +211,9 @@ class InitDecl : public Expression{
             if(dynamic_cast<Variable*>(decl)){
                 std::string var = decl->getvar();
                 head.insert_stack_offset(var, offset);
+                if(type == "float"){
+                    goto if_float;
+                }      
                 if(dynamic_cast<IntConst*>(initialiser)){
                     int val = initialiser->getint();
                     /*dst << "\t.globl  " << var << "\n" << "\t.data\n"
@@ -165,10 +224,18 @@ class InitDecl : public Expression{
                     dst << "\tsw\t" << t_reg << "\t" << "0($sp)" << std::endl;
                 }
                 if(dynamic_cast<BinOp*>(initialiser)){
-                initialiser->codegen(head, dst);
-                std::string dest_reg = initialiser->getdestreg();
-                head.insert_stack_offset(decl->getvar(), head.get_total_offset());
-                dst << "\tsw\t" << dest_reg << "\t" << "0($sp)" << std::endl;
+                    initialiser->codegen(head, dst);
+                    std::string dest_reg = initialiser->getdestreg();
+                    head.insert_stack_offset(decl->getvar(), head.get_total_offset());
+                    dst << "\tsw\t" << dest_reg << "\t" << "0($sp)" << std::endl;
+                }
+                if(dynamic_cast<FloatConst*>(initialiser)){
+                    if_float:
+                    std::string f_reg = head.newfreg();
+                    double val = initialiser->getfloat();
+                    head.insert_reg(var, f_reg);
+                    dst << "\tli.s\t" << f_reg << "\t" << val << std::endl; 
+                    dst << "\tswc1\t" << f_reg << "\t" << "0($sp)" << std::endl;
                 }
             }
         }
@@ -278,6 +345,9 @@ class AssignOp : public Expression{
         */
         virtual void codegen(Table &head, std::ostream &dst) override{
             std::string dest_reg = head.newsreg();
+            head.add_total_offset(-4);
+            int offset = head.get_total_offset();
+            dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
             if(dynamic_cast<Variable*>(decl)){
                 std::string arg_reg = head.getreg(decl->getvar());
                 dst << "Class AssignOp:" << std::endl;

@@ -28,7 +28,6 @@ class If : public Expression
             if(right){
                 right->codegen(head,dst);
             }
-            dst << "\tj\t" << endlabel << "\n" << "\tnop\n" << elselabel << ":\n";
         }
         virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;
@@ -58,7 +57,7 @@ class IfElse : public Expression
             if(left){
                 left->codegen(head, dst);
             }
-            dst << "\tbeq\t$" << left->getdestreg() << "\t$0\t" << elselabel << "\n" << "\tnop\n";
+            dst << "\tbeq\t" << left->getdestreg() << "\t$0\t" << elselabel << "\n" << "\tnop\n";
             if(mid){
                 mid->codegen(head,dst);
             }

@@ -21,6 +21,14 @@ class Expression{
             std::cout << "Unimplemented feature";
         }
 
+        virtual void put_type(std::string _type){
+            std::cout << "Class Expression: Unimplemented type" << std::endl;
+        }
+
+        virtual std::string get_type(){
+           //return type;
+        }
+
         virtual void codegen(Table &head, std::ostream &dst){
             dst << "Class Expression: Unimplemented codegen";
         }
@@ -35,6 +43,10 @@ class Expression{
         
         virtual int32_t getint(){
             std::cout << "Class Expression: Unimplemented feature";
+        }
+
+        virtual double getfloat(){
+            std::cout << "Class Expression: Unimplemented float\n";
         }
 
         virtual void getGlobal(std::vector<std::string> &v){

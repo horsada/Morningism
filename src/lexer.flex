@@ -33,7 +33,7 @@ void comment();
 "else"			{ count(); return(ELSE); }
 "enum"			{ count(); return(ENUM); }
 "extern"		{ count(); return(EXTERN); }
-"float"			{ count(); return(FLOAT); }
+"float"			{ count(); yylval._string = new std::string(yytext); return(FLOAT); }
 "for"			{ count(); return(FOR); }
 "goto"			{ count(); return(GOTO); }
 "if"			{ count(); yylval._string = new std::string(yytext); return(IF); }

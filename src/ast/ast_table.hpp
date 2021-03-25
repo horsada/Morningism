@@ -80,6 +80,21 @@ class Table{
         }
     }
 
+    std::string newfreg(){
+        static int count = 0;
+        if(count < 8){
+            std::string dest = "$f" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+        else{
+            count = 0;
+            std::string dest = "$f" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+    }
+
     void insert_reg(std::string val, std::string reg){
         regs.insert(std::make_pair(val, reg));
         assert(regs.find(val) != regs.end());
