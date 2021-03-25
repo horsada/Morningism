@@ -96,13 +96,6 @@ class IntConst : public Expression{
 
     virtual void codegen(Table &head, std::ostream &dst) override{
         dst << "Class IntConst:" << std::endl;
-        std::string reg = head.newtreg();
-        std::string val = std::to_string(getint());
-        int new_offset = head.get_total_offset() + 4;
-        head.add_total_offset(4);
-        head.insert_stack_offset(val, new_offset);
-        dst << "\tli\t" << reg << "\t" << val << std::endl; // load value into destreg
-        dst << "\tsw\t" << reg << "\t" << new_offset << "($sp)" << std::endl;
     }
 
     virtual void pushexpr(ExpressionPtr _expr) override{

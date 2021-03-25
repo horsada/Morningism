@@ -21,6 +21,7 @@ class List : public Expression{
 
         virtual void codegen(Table &head, std::ostream &dst) override{
             assert(exprs.size() != 0);
+            dst << "Class List:" << exprs.size() << std::endl;
             for(int i=0; i < exprs.size(); i++){
                 if(exprs[i] != NULL){
                     exprs[i]->codegen(head, dst);
@@ -59,7 +60,12 @@ class Scope : public Expression{
 
     virtual void codegen(Table &head, std::ostream &dst){
         dst << "Class Scope:" << std::endl;
-        statlist->codegen(head, dst);
+        if(declist){
+            declist->codegen(head,dst);
+        }
+        if(statlist){
+            statlist->codegen(head, dst);
+        }
     }
 
     virtual void pushexpr(ExpressionPtr _expr) override{

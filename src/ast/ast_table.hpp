@@ -9,6 +9,7 @@ typedef Table* TablePtr;
 class Table{
 
     private:
+    std::string func_name;
     std::stack<int> table_stack;
     int total_offset;
     std::map<std::string, int> stack_offset; // offset < 0 for local variables, offset > 0 for global variables
@@ -35,17 +36,33 @@ class Table{
     }
 
     std::string newsreg(){
-        static int count = 1;
-        std::string dest = "$s" + std::to_string(count); //s0 always used as default mem start
-        count++;
-        return dest;
+        static int count = 0;
+        if(count < 8){
+            std::string dest = "$s" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+        else{
+            count = 0;
+            std::string dest = "$s" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
     }
 
     std::string newtreg(){
         static int count = 0;
-        std::string dest = "$t" + std::to_string(count);
-        count++;
-        return dest;
+        if(count < 8){
+            std::string dest = "$t" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+        else{
+            count = 0;
+            std::string dest = "$t" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
     }
 
     void insert_reg(std::string val, std::string reg){
@@ -83,6 +100,15 @@ class Table{
     int get_stack_offset(std::string var){
         return stack_offset[var];
     }
+
+    void putfunction(std::string name){
+        func_name = name;
+    }
+
+    std::string get_func_name(){
+        std::cout << "entered get_func_name";
+            return func_name;
+        }
 
 };
 

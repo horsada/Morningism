@@ -17,7 +17,12 @@ class Variable : public Expression{
             return var;
         }
         virtual void codegen(Table &head, std::ostream &dst) override{
-            dst << "Class Variable:" << std::endl;
+            dst << "Class Variable:" << getvar() << std::endl;
+        }
+
+        virtual void function_var(Table &head) override{
+            std::cout << "entered function_var";
+            head.putfunction(getvar());
         }
 };
 

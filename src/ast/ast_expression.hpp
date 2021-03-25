@@ -44,6 +44,10 @@ class Expression{
         virtual std::string getdestreg(){
             std::cout << "Unimplemented destReg";
         }
+
+        virtual void function_var(Table &head){
+            std::cout << "Unimplemented function_var";
+        }
 };
 
 #endif

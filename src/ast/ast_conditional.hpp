@@ -20,10 +20,11 @@ class If : public Expression
         virtual void codegen(Table &head, std::ostream &dst) override{
             std::string elselabel = "Else:" + head.newlabel();
             std::string endlabel = "EndIF:" + head.newlabel();
-            if(left){
+            if(dynamic_cast<BinOp*>(left)){
                 left->codegen(head, dst);
+
+                dst << "\tbeq\t" << left->getdestreg() << "\t$0\t" << elselabel << "\n" << "\tnop\n";
             }
-            dst << "\tbeq\t$" << "$Conreg" << ",\t$0,\t" << elselabel << "\n" << "\tnop\n";
             if(right){
                 right->codegen(head,dst);
             }
@@ -57,7 +58,7 @@ class IfElse : public Expression
             if(left){
                 left->codegen(head, dst);
             }
-            dst << "\tbeq\t$" << "$Conreg" << ",\t$0,\t" << elselabel << "\n" << "\tnop\n";
+            dst << "\tbeq\t$" << left->getdestreg() << "\t$0\t" << elselabel << "\n" << "\tnop\n";
             if(mid){
                 mid->codegen(head,dst);
             }

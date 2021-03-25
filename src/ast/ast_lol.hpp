@@ -40,23 +40,30 @@ class Return : public Expression
             right->codegen(head, dst);
             if(dynamic_cast<BinOp*>(right)){
                 destReg = right->getdestreg();
+                int offset = head.get_stack_offset(destReg); //Find offset associated with left_var
+                int diff = offset - head.get_total_offset(); 
+                dst << "\tlw\t$v0\t" << diff << "($sp)" << std::endl;
             }
             else if(dynamic_cast<Variable*>(right)){
                 dst << "Class Variable in return" << std::endl;
-                destReg = head.getreg(right->getvar());
+                //destReg = head.getreg(right->getvar());
+                int offset = head.get_stack_offset(right->getvar());
+                int diff = offset-head.get_total_offset();
+                dst << "\tlw\t$v0\t" << diff << "($sp)" << std::endl;
             }
             else if(dynamic_cast<IntConst*>(right)){
                 std::string val = std::to_string(right->getint());
-                destReg = head.getreg(val);
+                dst << "\tli\t$v0" << "\t" << val << std::endl;
             }
             else{
                 dst << "Return: Unimplemented feature";
             }
             if(destReg != ""){
-                dst << "\tmove\t$v0,\t" << "destReg:" << destReg << std::endl;
+                //dst << "\tlw\t$v0\t" << destReg << std::endl;
+                //dst << "\tmove\t$v0,\t" << "destReg:" << destReg << std::endl;
             }
             else{
-                dst << "\tb\t\n" << "\tnop\n";
+               // dst << "\tb\t\n" << "\tnop\n";
             }
         }
 

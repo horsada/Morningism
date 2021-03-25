@@ -94,7 +94,6 @@ class DirectDecl : public Expression{
         }
 
         virtual void print(std::ostream &dst) override{
-            assert(param_type_list == NULL); // debugging
             dst << "Class DirectDecl:";
             direct_decl->print(dst);
             //param_type_list->print(dst);
@@ -144,24 +143,30 @@ class InitDecl : public Expression{
 
         virtual void codegen(Table &head, std::ostream &dst){
             dst << "Init Decl:\n";
-            std::string s_reg = head.newsreg();
+            head.add_total_offset(-4);
+            int offset = head.get_total_offset();
+            dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
+
+            std::string t_reg = head.newtreg();
             if(dynamic_cast<Variable*>(decl)){
                 std::string var = decl->getvar();
-                int32_t val = 0;
+                head.insert_stack_offset(var, offset);
+                head.insert_reg(var, t_reg);
                 if(dynamic_cast<IntConst*>(initialiser)){
-                    val = initialiser->getint();
-                    var = decl->getvar();
-                    head.insert_reg(var, s_reg);
+                    int val = initialiser->getint();
                     /*dst << "\t.globl  " << var << "\n" << "\t.data\n"
                     << "\t.align  2\n" << "\t.type   " << var << ", @object\n"
                     << "\t.size   " << var << ", 4\n" << var << ":\n"
                     << "\t.word " << val << "\n";*/
-                    dst << "\tli,\t" << s_reg << "\t" << val << std::endl; 
+                    dst << "\tli\t" << t_reg << "\t" << val << std::endl; 
+                    dst << "\tsw\t" << t_reg << "\t" << "0($sp)" << std::endl;
                 }
                 if(dynamic_cast<BinOp*>(initialiser)){
                 initialiser->codegen(head, dst);
-                dst << "\tmove\t" << s_reg << "\t" << initialiser->getdestreg() << std::endl;
-            }
+                std::string dest_reg = initialiser->getdestreg();
+                head.insert_stack_offset(decl->getvar(), head.get_total_offset());
+                dst << "\tsw\t" << dest_reg << "\t" << "0($sp)" << std::endl;
+                }
             }
         }
 };

@@ -33,41 +33,48 @@ class BinOp : public Expression
             dest_reg = head.newsreg();
             if(dynamic_cast<Variable*>(left)){
                 std::string left_var = left->getvar();
-                std::string left_reg = head.getreg(left_var); //Find register associated with left_var
+                std::string left_temp = head.newtreg();
+                int left_offset = head.get_stack_offset(left_var); //Find offset associated with left_var
+                int left_diff = left_offset - head.get_total_offset(); 
+                dst << "\tlw\t" << left_temp << "\t" << left_diff << "($sp)" << std::endl;
                 if(dynamic_cast<Variable*>(right)){
                     std::string right_var = right->getvar();
-                    std::string right_reg = head.getreg(right_var); //Find register associated with right_var
-                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_reg << "\t" << right_reg << std::endl;
+                    std::string right_temp = head.newtreg();
+                    int right_offset = head.get_stack_offset(right_var); //Find offset associated with left_var
+                    int right_diff = right_offset - head.get_total_offset();
+                    dst << "\tlw\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
+                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
                 }
                 else if (dynamic_cast<IntConst*>(right)){
-                    right->codegen(head, dst);
-                    std::string right_reg = head.getreg(std::to_string(right->getint()));
+                    std::string right_temp = head.newtreg();
+                    dst << "\tli\t" << right_temp << "\t" << right->getint() << std::endl;
                     // std::string right_reg = head.getreg(right_var); Find register associated with right_var
-                    dst << "\t" << getmips() << "\t$destReg" << "\t" << "$left_reg,\t" << right_reg << std::endl;
+                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
                 }
                 else{
                     dst << "Unimplemented binop" << std::endl;
                 }
             }
             else if(dynamic_cast<IntConst*>(left)){
-               left->codegen(head, dst); // this codegen should store the value in a register
-               std::string left_val = std::to_string(left->getint());
-               std::string left_reg = head.getreg(left_val);
+                std::string left_temp = head.newtreg();
+                dst << "\tli\t" << left_temp << "\t" << left->getint() << std::endl;
                 if(dynamic_cast<Variable*>(right)){
                     std::string right_var = right->getvar();
-                    dst << "\t" << getmips() << "\t$destReg"<< "\t" << "$left_reg, " << "$right_reg" << std::endl;
+                    std::string right_temp = head.newtreg();
+                    int right_offset = head.get_stack_offset(right_var); //Find offset associated with left_var
+                    int right_diff = right_offset - head.get_total_offset();
+                    dst << "\tlw\t" << right_temp << "\t" << right_diff << "($sp)" << std::endl;
+                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
                 }
                 else if (dynamic_cast<IntConst*>(right)){
-                    right->codegen(head, dst);
-                    std::string right_val = std::to_string(right->getint());
-                    std::string right_reg = head.getreg(right_val);
-                    dst << right_val << left_reg << std::endl;
-                    dst << "\t" << getmips() << "\tdestReg:"<< dest_reg << "\t" << "left_reg:" << left_reg << "\t" << "right_reg" << right_reg << std::endl;
+                    std::string right_temp = head.newtreg();
+                    dst << "\tli\t" << right_temp << "\t" << right->getint() << std::endl;
+                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
                 }
                 else if(dynamic_cast<BinOp*>(right)){
                     right->codegen(head, dst);
                     std::string right_destreg = right->getdestreg();
-                    dst << "\t" << getmips() << "\tdestReg:"<< dest_reg << "\t" << "left_reg:" << left_reg << "\t" << "right_reg" << right_destreg << std::endl;
+                    dst << "\t" << getmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_destreg << std::endl;
                 }
                 else{
                     dst << "Unimplemented binop" << std::endl;
@@ -76,6 +83,8 @@ class BinOp : public Expression
             else{
                 dst << "Unimplemented Binop" << std::endl;
             }
+            //dst << "\tsw\t" << dest_reg << "\t" << "0($sp)" << std::endl;
+            head.insert_stack_offset(dest_reg, head.get_total_offset());
         }
 
         virtual void pushexpr(ExpressionPtr _expr) override{

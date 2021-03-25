@@ -457,6 +457,7 @@ ExpressionPtr parseAST(std::string src){
     }
 	*/
 	g_root = new TranslationUnit();
+	//yparse(fp);
 	yyparse();
 	//fclose(fp);
 	return g_root;
