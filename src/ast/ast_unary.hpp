@@ -18,13 +18,51 @@ class Unary : public Expression
 
         virtual const std::string getunary() const =0;
 
+        virtual std::string getmips() =0;
+
         virtual void print(std::ostream &dst) override{
             dst << getunary();
             thing->print(dst);
         }
 
-        virtual void codegen(std::ostream &dst) override{
-            dst << "Unimplemented feature" << std::endl;
+        virtual void codegen(Table &head, std::ostream &dst) override{
+            if(dynamic_cast<Variable*>(thing)){
+                dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
+                head.add_total_offset(-4);
+
+                std::string var = thing->getvar();
+                int offset = head.get_stack_offset(var); //Find offset associated with left_var
+                int diff = offset - head.get_total_offset(); 
+                std::string destreg = head.getreg(thing->getvar());
+                dst << "\tlw\t" << destreg << "\t" << diff << "($sp)" << std::endl;
+                if(getmips() == "inc"){
+                    dst << "\taddiu\t" << destreg << "\t" << destreg << "\t1" << std::endl;
+                }
+                else if(getmips() == "dec"){
+                    dst << "\taddiu\t" << destreg << "\t" << destreg << "\t-1" << std::endl;
+                }
+                else if(getmips() == "neg"){
+                    dst << "\tsubu\t" << destreg << "\t$0\t" << destreg << std::endl;
+                }
+                if(getmips() == "not"){
+                    std::string end = head.newlabel();
+                    std::string gtz = head.newlabel();
+                    dst << "\tbne\t" << destreg << "\t$0\t" << gtz << "\n"
+                    << "\tnop\n" 
+                    << "\taddiu\t" << destreg << "\t$0\t1\n"
+                    << "\tb\t" << end << "\n"
+                    << "\tnop\n"
+                    << gtz << "\taddu\t" << destreg << "\t$0\t$0\n"
+                    << end << std::endl;
+                }
+                else if(getmips() == "comp"){
+                    dst << "\tnot\t" << destreg << "\t$0\t" << destreg << std::endl;
+                }
+                else{
+                    // do nothing
+                }
+                dst << "\tsw\t" << destreg << "\t0($sp)" << std::endl;
+            }
         }
         virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;
@@ -40,7 +78,10 @@ class IncrementUnary : public Unary
 
         virtual const std::string getunary() const override{ 
         return "++"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "inc";
+        }
 };
 
 class DecrementUnary : public Unary
@@ -52,6 +93,10 @@ class DecrementUnary : public Unary
         virtual const std::string getunary() const override{ 
         return "--"; 
     }
+
+        virtual std::string getmips() override{
+            return "dec";
+        }
 };
 
 class NegUnary : public Unary
@@ -62,7 +107,10 @@ class NegUnary : public Unary
         { }
         virtual const std::string getunary() const override{ 
         return "-"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "neg";
+        }
 };
 
 class NotUnary : public Unary
@@ -73,7 +121,10 @@ class NotUnary : public Unary
         { }
         virtual const std::string getunary() const override{ 
         return "!"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "not";
+        }
 };
 
 class AddrUnary : public Unary
@@ -84,7 +135,10 @@ class AddrUnary : public Unary
         { }
         virtual const std::string getunary() const override{ 
         return "&"; 
-    }
+        }
+        virtual std::string getmips() override{
+            return "addr";
+        }
 };
 
 class SizeOfUnary : public Unary
@@ -101,6 +155,10 @@ class SizeOfUnary : public Unary
         virtual const std::string getunary() const override{ 
         return "sizeof("; 
     }
+
+    virtual std::string getmips() override{
+            return "inc";
+        }
 };
 
 class PointerUnary : public Unary
@@ -112,6 +170,9 @@ class PointerUnary : public Unary
         virtual const std::string getunary() const override{ 
         return "*"; 
     }
+    virtual std::string getmips() override{
+            return "inc";
+        }
 };
 
 class PositiveUnary : public Unary
@@ -123,6 +184,9 @@ class PositiveUnary : public Unary
         virtual const std::string getunary() const override{ 
         return "+"; 
     }
+    virtual std::string getmips() override{
+            return "inc";
+        }
 };
 
 class ComplementUnary : public Unary
@@ -134,6 +198,10 @@ class ComplementUnary : public Unary
         virtual const std::string getunary() const override{ 
         return "~"; 
     }
+
+        virtual std::string getmips() override{
+            return "comp";
+        }
 };
 
 #endif

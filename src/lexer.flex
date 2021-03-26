@@ -80,7 +80,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval._string = new std::string(yytext); return(
 "|="			{ count(); return(OR_ASSIGN); }
 ">>"			{ count(); return(RIGHT_OP); }
 "<<"			{ count(); return(LEFT_OP); }
-"++"			{ count(); return(INC_OP); }
+"++"			{ count(); yylval._string = new std::string(yytext); return(INC_OP); }
 "--"			{ count(); return(DEC_OP); }
 "->"			{ count(); return(PTR_OP); }
 "&&"			{ count(); return(AND_OP); }

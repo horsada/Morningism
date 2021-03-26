@@ -81,8 +81,8 @@ postfix_expression
 	| postfix_expression '(' argument_expression_list ')'	{$$ = new FunctionCall($1, $3);}
 	| postfix_expression '.' T_IDENTIFIER
 	| postfix_expression PTR_OP T_IDENTIFIER
-	| postfix_expression INC_OP	{$$ = new PostFixOp($1, $2);}
-	| postfix_expression DEC_OP	{$$ = new PostFixOp($1, $2);}
+	| postfix_expression INC_OP	{$$ = new IncrementUnary($1);}
+	| postfix_expression DEC_OP	{$$ = new DecrementUnary($1);}
 	;
 
 argument_expression_list
