@@ -14,7 +14,7 @@
   extern FILE* yyin;
 }
 
-// %parse-param { FILE* fp }
+//%parse-param { FILE* fp }
 
 %union{
     Expression* expr;
@@ -448,17 +448,17 @@ char *s;
 ExpressionPtr g_root;
 
 ExpressionPtr parseAST(std::string src){
-	/*
+	
 	const char* c = src.c_str();
-	FILE* fp = fopen(c, "a");
-	if(!fp){
-    fprintf(stderr, "Couldn't open '%s'\n", src.c_str());
-    exit(1);
-    }
-	*/
+	yyin = fopen(c, "r");
+	
 	g_root = new TranslationUnit();
-	//yparse(fp);
-	yyparse();
-	//fclose(fp);
+
+	if(yyin){
+		yyparse();
+	}
+	//yyparse(fp);
+	//yyparse();
+	fclose(yyin);
 	return g_root;
 }	

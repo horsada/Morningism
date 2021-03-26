@@ -29,7 +29,7 @@ class Function : public Expression{
         }
 
         void preamble(Table &head, std::ostream &dst, std::string f_name){
-            dst << "\n\t.text\n" << "\t_" << f_name << ":" << std::endl;
+            dst << "\n.text\n" << "_" << f_name << ":" << std::endl;
         }
 
         void end(Table &head, std::ostream &dst, std::string f_name){
