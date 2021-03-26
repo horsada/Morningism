@@ -263,11 +263,18 @@ class ParamDecl : public Expression{
             //std::cout << "Class ParamDecl:" << decl_spec << std::endl;
             if(dynamic_cast<Variable*>(init_decl_list)){
                 std::string a_reg = head.newareg();
-                head.insert_reg(init_decl_list->getvar(), a_reg);
+                std::string f_arg_reg = head.new_f_arg_reg();
+                dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
+                if(decl_spec == "float"){
+                    head.insert_reg(init_decl_list->getvar(), f_arg_reg);
+                    dst << "\tswc1\t" << f_arg_reg << "\t" << "0($sp)" << std::endl;
+                }
+                else{
+                    head.insert_reg(init_decl_list->getvar(), a_reg);
+                    dst << "\tsw\t" << a_reg << "\t" << "0($sp)" << std::endl;
+                }
                 head.add_total_offset(-4);
                 head.insert_stack_offset(init_decl_list->getvar(), head.get_total_offset());
-                dst << "\taddiu\t$sp\t$sp\t" << -4 << std::endl;
-                dst << "\tsw\t" << a_reg << "\t" << "0($sp)" << std::endl;
             }
         }
 };
@@ -357,16 +364,28 @@ class AssignOp : public Expression{
                     << "\t.align  2\n" << "\t.type   " << var << ", @object\n"
                     << "\t.size   " << var << ", 4\n" << var << ":\n"
                     << "\t.word " << val << "\n";*/
+                    int diff = head.get_stack_offset(decl->getvar()) - head.get_total_offset();
                     dst << "\tli\t" << arg_reg << "\t" << val << std::endl; 
-                    dst << "\tsw\t" << arg_reg << "\t" << "0($sp)" << std::endl;
+                    dst << "\tsw\t" << arg_reg << "\t" << diff << "($sp)" << std::endl;
                 }
                 if(dynamic_cast<BinOp*>(initialiser)){
                 initialiser->codegen(head, dst, arg_reg);
                 std::string dest_reg = initialiser->getdestreg();
                 head.insert_stack_offset(decl->getvar(), head.get_total_offset());
-                dst << "\tsw\t" << dest_reg << "\t" << "0($sp)" << std::endl;
+                if(dest_reg.find("f") != std::string::npos){
+                    dst << "\tswc1\t" << dest_reg << "\t" << "0($sp)" << std::endl;
+                }   
+                else{
+                    dst << "\tsw\t" << dest_reg << "\t" << "0($sp)" << std::endl;
                 }
+                }
+                if(dynamic_cast<FloatConst*>(initialiser)){
+                    double val = initialiser->getfloat();
+                    int diff = head.get_stack_offset(decl->getvar()) - head.get_total_offset();
+                    dst << "\tli.s\t" << arg_reg << "\t" << val << std::endl; 
+                    dst << "\tswc1\t" << arg_reg << "\t" << diff << "($sp)" << std::endl;
                 //dst << "\tmove\t" << dest_reg << "\t" << arg_reg << std::endl;
+                }
             }
         }
 };

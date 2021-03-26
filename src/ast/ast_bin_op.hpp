@@ -60,7 +60,6 @@ class BinOp : public Expression
                     if(left_temp.find('f') != std::string::npos){
                         dest_reg = head.newfreg();
                         dst << "\tlwc1\t" << left_temp << "\t" << left_diff << "($sp)" << std::endl;
-                        dst << "\t" << getfmips() << "\t" << dest_reg << "\t" << left_temp << "\t" << right_temp << std::endl;
                     }
                     else{
                         dst << "\tlw\t" << left_temp << "\t" << left_diff << "($sp)" << std::endl;

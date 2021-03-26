@@ -80,15 +80,30 @@ class Table{
         }
     }
 
-    std::string newfreg(){
-        static int count = 0;
-        if(count < 8){
+    std::string new_f_arg_reg(){
+        static int count = 12;
+        if(count < 20){
             std::string dest = "$f" + std::to_string(count); //s0 always used as default mem start
             count++;
             return dest;
         }
         else{
-            count = 0;
+            count = 12;
+            std::string dest = "$f" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+    }
+
+    std::string newfreg(){
+        static int count = 4;
+        if(count < 11){
+            std::string dest = "$f" + std::to_string(count); //s0 always used as default mem start
+            count++;
+            return dest;
+        }
+        else{
+            count = 4;
             std::string dest = "$f" + std::to_string(count); //s0 always used as default mem start
             count++;
             return dest;
