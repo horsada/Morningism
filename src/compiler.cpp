@@ -41,7 +41,7 @@ int main(int argc, char* argv[]){
     std::string src = argv[2];
     
     ExpressionPtr ast = parseAST(src);
-    std::cout << "*---------------------PARSED CONTENT-----------------*" << std::endl;
+    //std::cout << "*---------------------PARSED CONTENT-----------------*" << std::endl;
     ast->codegen(head, std::cout);
     //ast->print(std::cout);
     std::cout << std::endl;
