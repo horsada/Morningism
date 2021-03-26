@@ -28,6 +28,7 @@ class If : public Expression
             if(right){
                 right->codegen(head,dst);
             }
+            dst << elselabel << std::endl;
         }
         virtual void pushexpr(ExpressionPtr _expr) override{
             std::cout << "Unimplemented feature" << std::endl;
@@ -52,8 +53,8 @@ class IfElse : public Expression
             right->print(dst);
         }
         virtual void codegen(Table &head, std::ostream &dst) override{
-            std::string elselabel = "Else:" + head.newlabel();
-            std::string endlabel = "EndIF:" + head.newlabel();
+            std::string elselabel = head.newlabel();
+            std::string endlabel = head.newlabel();
             if(left){
                 left->codegen(head, dst);
             }

@@ -66,11 +66,10 @@ class Return : public Expression
                     dst << "\tmfc1\t$v0\t" << f_reg << std::endl;
                 }
                 else{
-                    dst << "Class Variable in return" << std::endl;
+                    //dst << "Class Variable in return" << std::endl;
                     //destReg = head.getreg(right->getvar());
                     dst << "\tlw\t$v0\t" << diff << "($sp)" << std::endl;
                 }
-                dst << "\tlw\t$v0\t" << diff << "($sp)" << std::endl;
             }
             else if(dynamic_cast<IntConst*>(right)){
                 std::string val = std::to_string(right->getint());

@@ -68,6 +68,12 @@ class FunctionCall : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
+            std::string f_name;
+            if(dynamic_cast<Variable*>(postfix)){
+                f_name = postfix->getvar();
+            }
+            dst << "\tjal\t" << f_name << std::endl;
+
             //dst << "Class FunctionCall:";
             //dst << "Unimplemented feature";
         }
@@ -260,7 +266,7 @@ class ParamDecl : public Expression{
         }
 
         virtual void codegen(Table &head, std::ostream &dst){
-            //std::cout << "Class ParamDecl:" << decl_spec << std::endl;
+            //dst << "Class ParamDecl:" << decl_spec << std::endl;
             if(dynamic_cast<Variable*>(init_decl_list)){
                 std::string a_reg = head.newareg();
                 std::string f_arg_reg = head.new_f_arg_reg();
