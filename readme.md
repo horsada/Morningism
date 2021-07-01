@@ -19,7 +19,7 @@
 - Each derived class from the _Expression_ class contains a _mips_ member function that outputs the corresponding MIPS assembly of that class.
 - The tree is left-traversed to output the MIPS assembly in the correct order.
 
-# 4. Stack
+## 4. Stack
 - Currently, the assembly is configured to send all local variables to memory, making minimal use of the MIPS temporary registers. 
   - This was done for simplicity and for easier debugging/testing. 
 
